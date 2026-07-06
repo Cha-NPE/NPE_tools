@@ -192,6 +192,8 @@ function GWFormatter() {
                     />
                     Clear input boxes after copy
                 </label>
+            </div>
+            <div className="centered-buttons-div">
                 <button onClick={convert}>Convert</button>
                 <button onClick={copyOutput}>Copy Output</button>
             </div>
