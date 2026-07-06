@@ -192,7 +192,7 @@ function NRFormatter() {
         }</strong></div>
         <div><strong>COC, ROI?, & lock off photo attached</strong></div>
         <div><strong>Permanent/Temporary: ${permanent}</strong></div>
-        <div><strong>J A Russell PO# 45XXXX</strong></div>
+        <div><strong>J A Russell PO# 459XXX</strong></div>
         ${assetTypeMissing ? `<div><strong>Asset missing</strong></div>` : ``}
         ${assetNumberMissing ? `<div><strong>Asset number missing</strong></div>` : ``}
         ` : ``}
@@ -304,6 +304,10 @@ function NRFormatter() {
             </div>
 
             <div className= "centered-buttons-div">
+                <button onClick={convertSAPText}>Convert</button>
+                <button onClick={copyOutput}>Copy Output</button>
+            </div>
+            <div>
                 <label style={{ marginRight: "12px" }}>
                     <input
                         type="checkbox"
@@ -312,8 +316,6 @@ function NRFormatter() {
                     />
                     Clear input boxes after copy
                 </label>
-                <button onClick={convertSAPText}>Convert</button>
-                <button onClick={copyOutput}>Copy Output</button>
             </div>
 
             <div className="output" dangerouslySetInnerHTML={{__html:outputHtml}}/>
