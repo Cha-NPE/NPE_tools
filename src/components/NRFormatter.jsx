@@ -31,6 +31,30 @@ function NRFormatter() {
         return `${label}: ${value}`;
     }
 
+    function getRegionNumber(siteAddress) {
+        const normalizedAddress = (siteAddress || "").toLowerCase();
+        const whanganuiTerms = [
+            "whanganui",
+            "wanganui",
+            "marton",
+            "taihape",
+            "bulls",
+            "ohakune",
+            "brunswick",
+            "hunterville",
+            "castlecliff",
+            "durie hill",
+            "gonville",
+            "springvale"
+        ];
+
+        if (whanganuiTerms.some(term => normalizedAddress.includes(term))) {
+            return "4100000590";
+        }
+
+        return "4100000589";
+    }
+
     function formatPhone(phone) {
         if (!phone) { return ""; }
 
@@ -109,6 +133,8 @@ function NRFormatter() {
         const inspector = getValue(electricianSection, "Nominated Inspector/Meter Installer:", "END");
 
         const isDecommission = jobClassification.toLowerCase().includes("decommission");
+        const isTemporary = permanent.toLowerCase().includes("temp");
+        const displayJobClassification = isTemporary ? "BTS Connection" : jobClassification;
 
         const dueDate = new Date();
         dueDate.setMonth(dueDate.getMonth() + 1);
@@ -118,16 +144,15 @@ function NRFormatter() {
         const output =
         `
         <div>${workOrderNumber} ${subject}-${siteAddress}</div>
-        <div>4100000589</div>
-        <div>${formattedDate}</div>
+        <div>${getRegionNumber(siteAddress)}</div>
 
         <div style="text-align:center;">
             <span style="font-weight:bold; text-decoration: underline; font-size:10pt;">
-                ${workOrderNumber} - ${siteAddress || legalDescription} - New/BTS/Modify Connection
+                ${workOrderNumber} - ${siteAddress || legalDescription} - ${displayJobClassification}
             </span>
         </div>
         <div><br></div>
-        <div><strong>${jobClassification} ${icpNumber}</strong></div>
+        <div><strong>${displayJobClassification} ${icpNumber}</strong></div>
         
         ${!isDecommission ? `
         <div><strong>${({
@@ -141,8 +166,8 @@ function NRFormatter() {
             three: "3"
         }[phasesRequired.toLowerCase()] || phasesRequired)}C NS service cable to ${
             assetType === "Pillar"
-                ? "Pillar Box # " + assetNumber
-                : assetType + " # " + assetNumber
+                ? "Pillar Box# " + assetNumber
+                : assetType + "# " + assetNumber
         }</strong></div>
         <div><strong>COC, ROI?, & lock off photo attached</strong></div>
         <div><strong>Permanent/Temporary: ${permanent}</strong></div>
@@ -160,7 +185,7 @@ function NRFormatter() {
         <div><br></div>
         <div><strong>SITE DETAILS</strong></div>
         <div>${addLine("Site Address", siteAddress)}</div>
-        <div>${addLine("Legal Description", legalDescription)}</div>
+        <div>${addLine("Legal Description", legalDescription)}</div>  
         <div>${addLine("Additional Details", additionalDetails)}</div>
         <div><br></div>
         <div><strong>CONNECTION DETAILS - NEW CONNECTION</strong></div>
