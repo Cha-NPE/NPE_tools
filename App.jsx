@@ -42,16 +42,16 @@ function App() {
                         {sidebarOpen ? "DG Formatter" : "DG"}
                     </button>
 
-                    <button onClick={() => setSelectedTool("pdf")}>
-                        {sidebarOpen ? "PDF Splitter" : "PDF"}
-                    </button>
-
                     <button onClick={() => setSelectedTool("gw")}>
                         {sidebarOpen ? "GW Formatter" : "GW"}
                     </button>
 
                     <button onClick={() => setSelectedTool("nr")}>
                         {sidebarOpen ? "NR Formatter" : "NR"}
+                    </button>
+                    
+                    <button onClick={() => setSelectedTool("pdf")}>
+                        {sidebarOpen ? "PDF Splitter" : "PDF"}
                     </button>
                     </>
                 )}
