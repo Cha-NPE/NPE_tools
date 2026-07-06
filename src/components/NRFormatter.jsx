@@ -98,6 +98,7 @@ function NRFormatter() {
         const siteDetailsSection = getSection(text, "SITE DETAILS", ["CONNECTION DETAILS"]);
         const connectionSection = getSection(text, "CONNECTION DETAILS - NEW CONNECTION", ["APPLICANT DETAILS"]);
         const electricianSection = getSection(text, "ELECTRICIAN DETAILS", ["ELECTRICITY BILL PAYER DETAILS"]);
+        const applicantSection = getSection(text, "APPLICANT DETAILS", ["ELECTRICIAN DETAILS"]);
 
         //Email input
         const emailContent = emailText;
@@ -132,6 +133,12 @@ function NRFormatter() {
         const electricianEmail = getValue(electricianSection, "Email:", "Nominated Inspector/Meter Installer:");
         const inspector = getValue(electricianSection, "Nominated Inspector/Meter Installer:", "END");
 
+        const applicantCompany = getValue(applicantSection, "Company:", "Name:");
+        const applicantName = getValue(applicantSection, "Name:", "Phone:");
+        const applicantPhone = formatPhone(getValue(applicantSection, "Phone:", "Email:"));
+        const applicantEmail = getValue(applicantSection, "Email:", "Nominated Inspector/Meter Installer:");
+        const applicantInspector = getValue(applicantSection, "Nominated Inspector/Meter Installer:", "END");
+
         const isDecommission = jobClassification.toLowerCase().includes("decommission");
         const isTemporary = permanent.toLowerCase().includes("temp");
         const displayJobClassification = isTemporary ? "BTS Connection" : jobClassification;
@@ -139,6 +146,15 @@ function NRFormatter() {
         const normalizedAssetNumber = (assetNumber || "").trim();
         const assetTypeMissing = !normalizedAssetType || normalizedAssetType.toLowerCase() === "transformer";
         const assetNumberMissing = !normalizedAssetNumber;
+
+        const electricianDetailsMissing = ![electricianCompany, electricianName, electricianPhone, electricianEmail, inspector]
+            .some(value => value?.trim());
+        const displayCompany = electricianDetailsMissing ? applicantCompany : electricianCompany;
+        const displayName = electricianDetailsMissing ? applicantName : electricianName;
+        const displayPhone = electricianDetailsMissing ? applicantPhone : electricianPhone;
+        const displayEmail = electricianDetailsMissing ? applicantEmail : electricianEmail;
+        const displayInspector = electricianDetailsMissing ? applicantInspector : inspector;
+        const displaySectionTitle = electricianDetailsMissing ? "APPLICANT DETAILS" : "ELECTRICIAN DETAILS";
 
         const dueDate = new Date();
         dueDate.setMonth(dueDate.getMonth() + 1);
@@ -156,10 +172,10 @@ function NRFormatter() {
             </span>
         </div>
         <div><br></div>
-        <div><strong>${displayJobClassification} ${icpNumber}</strong></div>
+        <div><strong>${jobClassification} ${icpNumber}</strong></div>
         
         ${!isDecommission ? `
-        <div><strong>${({
+        <div><strong>${({  
             one: "Single phase",
             two: "Two phase",
             three: "Three phase"
@@ -207,13 +223,13 @@ function NRFormatter() {
         <div>${addLine("Land Description", landDescription)}</div>
         <div>${addLine("Comments", comments)}</div>
         <div><br></div>
-        <div><strong>ELECTRICIAN DETAILS</strong></div>
+        <div><strong>${displaySectionTitle}</strong></div>
         `}
-        <div>${addLine("Company", electricianCompany)}</div>
-        <div>${addLine("Name", electricianName)}</div>
-        <div>${addLine("Phone", electricianPhone)}</div>
-        <div>${addLine("Email", electricianEmail)}</div>
-        <div>${addLine("Nominated Inspector/Meter Installer", inspector)}</div>
+        <div>${addLine("Company", displayCompany)}</div>
+        <div>${addLine("Name", displayName)}</div>
+        <div>${addLine("Phone", displayPhone)}</div>
+        <div>${addLine("Email", displayEmail)}</div>
+        <div>${addLine("Nominated Inspector/Meter Installer", displayInspector)}</div>
         
         ${isDecommission ? `
             <div style="text-align:center;">
