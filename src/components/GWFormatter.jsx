@@ -179,14 +179,6 @@ function GWFormatter() {
             <br />
             <button onClick={convert}>Convert</button>
             <button onClick={copyOutput}>Copy Output</button>
-            <label style={{ marginRight: "12px" }}>
-                <input
-                    type="checkbox"
-                    checked={clearInputsOnCopy}
-                    onChange={(e) => setClearInputsOnCopy(e.target.checked)}
-                />
-                Clear input boxes after copy
-            </label>
             <div className="output" dangerouslySetInnerHTML={{__html: outputHtml}}/>
         </>
     );
