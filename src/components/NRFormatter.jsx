@@ -5,6 +5,7 @@ function NRFormatter() {
     const sapInputRef = useRef(null);
     const [emailText, setEmailText] = useState("");
     const [outputHtml, setOutputHtml] = useState("");
+    const [clearInputsOnCopy, setClearInputsOnCopy] = useState(false);
 
     function getValue(text, startLabel, endLabels = null) {
         const startIndex = text.indexOf(startLabel);
@@ -154,7 +155,7 @@ function NRFormatter() {
         const displayPhone = electricianDetailsMissing ? applicantPhone : electricianPhone;
         const displayEmail = electricianDetailsMissing ? applicantEmail : electricianEmail;
         const displayInspector = electricianDetailsMissing ? applicantInspector : inspector;
-        const displaySectionTitle = electricianDetailsMissing ? "APPLICANT DETAILS" : "ELECTRICIAN DETAILS";
+        const displaySectionTitle = electricianDetailsMissing ? "APPLICANT DETAILS - Electrician Details Missing" : "ELECTRICIAN DETAILS";
 
         const dueDate = new Date();
         dueDate.setMonth(dueDate.getMonth() + 1);
@@ -276,6 +277,14 @@ function NRFormatter() {
                 "text/plain": new Blob([temp.innerText], {type: "text/plain"})
             })
         ]);
+
+        if (clearInputsOnCopy) {
+            if (sapInputRef.current) {
+                sapInputRef.current.innerHTML = "";
+                sapInputRef.current.textContent = "";
+            }
+            setEmailText("");
+        }
     }
 
     return (
@@ -295,6 +304,14 @@ function NRFormatter() {
             </div>
 
             <div className= "centered-buttons-div">
+                <label style={{ marginRight: "12px" }}>
+                    <input
+                        type="checkbox"
+                        checked={clearInputsOnCopy}
+                        onChange={(e) => setClearInputsOnCopy(e.target.checked)}
+                    />
+                    Clear input boxes after copy
+                </label>
                 <button onClick={convertSAPText}>Convert</button>
                 <button onClick={copyOutput}>Copy Output</button>
             </div>
