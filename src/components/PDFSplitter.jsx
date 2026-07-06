@@ -1,48 +1,58 @@
 import { useRef } from "react";
 import { PDFDocument } from "pdf-lib";
+import * as pdfjsLib from "pdfjs-dist";
+import { createWorker } from "tesseract.js";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
 function PdfSplitter() {
     const fileInputRef = useRef(null);
 
     async function getFilenameFromOCR(pdfBytes) {
-        const formData = new FormData();
-
-        const blob = new Blob([pdfBytes], {
-            type: "application/pdf"
-        });
-
-        formData.append("pdf", blob, "document.pdf");
+        const worker = await createWorker("eng");
 
         try {
-            const response = await fetch("http://localhost:8000/ocr", {
-                method: "POST",
-                body: formData
-            });
+            const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+            const pdf = await loadingTask.promise;
+            const pageCount = Math.min(pdf.numPages, 2);
+            const textChunks = [];
 
-            console.log("OCR fetch status:", response.status, response.statusText);
+            for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
+                const page = await pdf.getPage(pageNumber);
+                const viewport = page.getViewport({ scale: 2 });
+                const canvas = document.createElement("canvas");
+                const context = canvas.getContext("2d");
 
-            const text = await response.text();
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
 
-            let data = null;
-            try {
-                data = JSON.parse(text);
+                await page.render({
+                    canvasContext: context,
+                    viewport
+                }).promise;
+
+                const { data: { text } } = await worker.recognize(canvas.toDataURL("image/png"));
+                textChunks.push(text.trim());
             }
-            catch (e) {
-                console.warn("OCR response is not JSON:", text);
+
+            const combinedText = textChunks.filter(Boolean).join("\n").trim();
+            console.log("OCR text:", combinedText);
+
+            if (!combinedText) {
+                return null;
             }
 
-            if (!response.ok) {
-                console.error("OCR request failed:", response.status, response.statusText, text);
-                throw new Error("OCR request failed");
-            }
-
-            console.log("OCR response body:", data ?? text);
-
-            return data?.filename ?? null;
+            return combinedText
+                .replace(/\s+/g, " ")
+                .trim()
+                .slice(0, 80);
         }
-        catch (networkError) {
-            console.error("OCR network/CORS error:", networkError);
-            throw networkError;
+        catch (error) {
+            console.error("OCR processing failed:", error);
+            throw error;
+        }
+        finally {
+            await worker.terminate();
         }
     }
 
