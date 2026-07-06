@@ -204,60 +204,60 @@ end`},fa=function(){return`<`+[...arguments].join(``)+`>`},pa=function(e){return
 
         </table>
         
-        `)}async function i(){let e=document.createElement(`div`);e.innerHTML=t,await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([t],{type:`text/html`}),"text/plain":new Blob([e.innerText],{type:`text/plain`})})])}return(0,qd.jsxs)(qd.Fragment,{children:[(0,qd.jsx)(`h1`,{children:`GW Table Formatter`}),(0,qd.jsx)(`div`,{ref:e,className:`GW-input`,contentEditable:!0,suppressContentEditableWarning:!0}),(0,qd.jsx)(`br`,{}),(0,qd.jsx)(`button`,{onClick:r,children:`Convert`}),(0,qd.jsx)(`button`,{onClick:i,children:`Copy Output`}),(0,qd.jsx)(`div`,{className:`output`,dangerouslySetInnerHTML:{__html:t}})]})}var Kd,qd,Jd=o((()=>{Kd=l(d()),oe(),qd=ce()}));function Yd(){let e=(0,Xd.useRef)(null),[t,n]=(0,Xd.useState)(``),[r,i]=(0,Xd.useState)(``);function a(e,t,n=null){let r=e.indexOf(t);if(r===-1)return``;let i=r+t.length,a=e.length;return n&&(Array.isArray(n)||(n=[n]),n.forEach(t=>{let n=e.indexOf(t,i);n!==-1&&n<a&&(a=n)})),e.substring(i,a).trim()}function o(e,t){return t?.trim()?`${e}: ${t}`:``}function s(e){let t=(e||``).toLowerCase();return[`whanganui`,`wanganui`,`marton`,`taihape`,`bulls`,`ohakune`,`brunswick`,`hunterville`,`castlecliff`,`durie hill`,`gonville`,`springvale`].some(e=>t.includes(e))?`4100000590`:`4100000589`}function c(e){if(!e)return``;let t=e.replace(/\D/g,``);return t.startsWith(`640`)&&(t=`64`+t.substring(3)),t.startsWith(`642`)&&t.length>=10?(`0`+t.substring(2)).replace(/(\d{3})(\d{3})(\d+)/,`$1 $2 $3`):t.startsWith(`64`)&&t.length>=10?(`0`+t.substring(2)).replace(/(\d{2})(\d{3})(\d+)/,`$1 $2 $3`):e}function l(e,t,n=[]){let r=e.indexOf(t);if(r===-1)return``;let i=r+t.length,a=e.length;return n.forEach(t=>{let n=e.indexOf(t,i);n!==-1&&n<a&&(a=n)}),e.substring(i,a).trim()}function u(){let n=e.current.innerText,r=e.current.innerHTML,u=l(n,`SITE DETAILS`,[`CONNECTION DETAILS`]),d=l(n,`CONNECTION DETAILS - NEW CONNECTION`,[`APPLICANT DETAILS`]),f=l(n,`ELECTRICIAN DETAILS`,[`ELECTRICITY BILL PAYER DETAILS`]),p=t,m=a(p,`Work order number:`,`Subject:`),h=a(p,`Subject:`,`Work order status:`).split(`-`).slice(0,3).join(`-`),g=a(p,`ICP number:`,`END`),_=a(n,`Network Ready Job Classification:`,[`Permanent/Temporary:`,`SITE DETAILS`]),v=a(n,`Permanent/Temporary:`,`SITE DETAILS`),y=a(u,`Site Address:`,[`Legal Description:`,`Additional Details`]),b=a(u,`Legal Description:`,`Additional Details:`),x=a(u,`Additional Details:`,`Meter Number`),S=a(d,`Phases Required:`,[`Load Demand:`,`Required`]),C=a(d,`Load Demand:`,`BTS Installation Details:`),w=a(d,`Asset Type:`,`Asset Number:`),T=a(d,`Asset Number:`,`Transformer Site ID:`),E=a(d,`Transformer Site ID:`,`High Level Job Scope:`),D=a(d,`High Level Job Scope:`,`Land Description:`),O=a(d,`Land Description:`,`Comments:`),k=a(d,`Comments:`),ee=a(f,`Company:`,`Name:`),A=a(f,`Name:`,`Phone:`),j=c(a(f,`Phone:`,`Email:`)),te=a(f,`Email:`,`Nominated Inspector/Meter Installer:`),ne=a(f,`Nominated Inspector/Meter Installer:`,`END`),re=_.toLowerCase().includes(`decommission`),M=v.toLowerCase().includes(`temp`)?`BTS Connection`:_,N=(w||``).trim(),ie=(T||``).trim(),ae=!N||N.toLowerCase()===`transformer`,oe=!ie,se=new Date;se.setMonth(se.getMonth()+1),String(se.getDate()).padStart(2,`0`)+``+String(se.getMonth()+1).padStart(2,`0`)+se.getFullYear(),i(`
-        <div>${m} ${h}-${y}</div>
-        <div>${s(y)}</div>
+        `)}async function i(){let e=document.createElement(`div`);e.innerHTML=t,await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([t],{type:`text/html`}),"text/plain":new Blob([e.innerText],{type:`text/plain`})})])}return(0,qd.jsxs)(qd.Fragment,{children:[(0,qd.jsx)(`h1`,{children:`GW Table Formatter`}),(0,qd.jsx)(`div`,{ref:e,className:`GW-input`,contentEditable:!0,suppressContentEditableWarning:!0}),(0,qd.jsx)(`br`,{}),(0,qd.jsx)(`button`,{onClick:r,children:`Convert`}),(0,qd.jsx)(`button`,{onClick:i,children:`Copy Output`}),(0,qd.jsx)(`div`,{className:`output`,dangerouslySetInnerHTML:{__html:t}})]})}var Kd,qd,Jd=o((()=>{Kd=l(d()),oe(),qd=ce()}));function Yd(){let e=(0,Xd.useRef)(null),[t,n]=(0,Xd.useState)(``),[r,i]=(0,Xd.useState)(``);function a(e,t,n=null){let r=e.indexOf(t);if(r===-1)return``;let i=r+t.length,a=e.length;return n&&(Array.isArray(n)||(n=[n]),n.forEach(t=>{let n=e.indexOf(t,i);n!==-1&&n<a&&(a=n)})),e.substring(i,a).trim()}function o(e,t){return t?.trim()?`${e}: ${t}`:``}function s(e){let t=(e||``).toLowerCase();return[`whanganui`,`wanganui`,`marton`,`taihape`,`bulls`,`ohakune`,`brunswick`,`hunterville`,`castlecliff`,`durie hill`,`gonville`,`springvale`].some(e=>t.includes(e))?`4100000590`:`4100000589`}function c(e){if(!e)return``;let t=e.replace(/\D/g,``);return t.startsWith(`640`)&&(t=`64`+t.substring(3)),t.startsWith(`642`)&&t.length>=10?(`0`+t.substring(2)).replace(/(\d{3})(\d{3})(\d+)/,`$1 $2 $3`):t.startsWith(`64`)&&t.length>=10?(`0`+t.substring(2)).replace(/(\d{2})(\d{3})(\d+)/,`$1 $2 $3`):e}function l(e,t,n=[]){let r=e.indexOf(t);if(r===-1)return``;let i=r+t.length,a=e.length;return n.forEach(t=>{let n=e.indexOf(t,i);n!==-1&&n<a&&(a=n)}),e.substring(i,a).trim()}function u(){let n=e.current.innerText,r=e.current.innerHTML,u=l(n,`SITE DETAILS`,[`CONNECTION DETAILS`]),d=l(n,`CONNECTION DETAILS - NEW CONNECTION`,[`APPLICANT DETAILS`]),f=l(n,`ELECTRICIAN DETAILS`,[`ELECTRICITY BILL PAYER DETAILS`]),p=l(n,`APPLICANT DETAILS`,[`ELECTRICIAN DETAILS`]),m=t,h=a(m,`Work order number:`,`Subject:`),g=a(m,`Subject:`,`Work order status:`).split(`-`).slice(0,3).join(`-`),_=a(m,`ICP number:`,`END`),v=a(n,`Network Ready Job Classification:`,[`Permanent/Temporary:`,`SITE DETAILS`]),y=a(n,`Permanent/Temporary:`,`SITE DETAILS`),b=a(u,`Site Address:`,[`Legal Description:`,`Additional Details`]),x=a(u,`Legal Description:`,`Additional Details:`),S=a(u,`Additional Details:`,`Meter Number`),C=a(d,`Phases Required:`,[`Load Demand:`,`Required`]),w=a(d,`Load Demand:`,`BTS Installation Details:`),T=a(d,`Asset Type:`,`Asset Number:`),E=a(d,`Asset Number:`,`Transformer Site ID:`),D=a(d,`Transformer Site ID:`,`High Level Job Scope:`),O=a(d,`High Level Job Scope:`,`Land Description:`),k=a(d,`Land Description:`,`Comments:`),ee=a(d,`Comments:`),A=a(f,`Company:`,`Name:`),j=a(f,`Name:`,`Phone:`),te=c(a(f,`Phone:`,`Email:`)),ne=a(f,`Email:`,`Nominated Inspector/Meter Installer:`),re=a(f,`Nominated Inspector/Meter Installer:`,`END`),M=a(p,`Company:`,`Name:`),N=a(p,`Name:`,`Phone:`),ie=c(a(p,`Phone:`,`Email:`)),ae=a(p,`Email:`,`Nominated Inspector/Meter Installer:`),oe=a(p,`Nominated Inspector/Meter Installer:`,`END`),se=v.toLowerCase().includes(`decommission`),ce=y.toLowerCase().includes(`temp`)?`BTS Connection`:v,P=(T||``).trim(),le=(E||``).trim(),ue=!P||P.toLowerCase()===`transformer`,de=!le,F=![A,j,te,ne,re].some(e=>e?.trim()),fe=F?M:A,I=F?N:j,L=F?ie:te,pe=F?ae:ne,me=F?oe:re,R=F?`APPLICANT DETAILS`:`ELECTRICIAN DETAILS`,z=new Date;z.setMonth(z.getMonth()+1),String(z.getDate()).padStart(2,`0`)+``+String(z.getMonth()+1).padStart(2,`0`)+z.getFullYear(),i(`
+        <div>${h} ${g}-${b}</div>
+        <div>${s(b)}</div>
 
         <div style="text-align:center;">
             <span style="font-weight:bold; text-decoration: underline; font-size:10pt;">
-                ${m} - ${y||b} - ${M}
+                ${h} - ${b||x} - ${ce}
             </span>
         </div>
         <div><br></div>
-        <div><strong>${M} ${g}</strong></div>
+        <div><strong>${v} ${_}</strong></div>
         
-        ${re?``:`
-        <div><strong>${{one:`Single phase`,two:`Two phase`,three:`Three phase`}[S.toLowerCase()]||S} ${C}A</strong></div>
-        <div><strong>Connect [size]mm ${{one:`1`,two:`2`,three:`3`}[S.toLowerCase()]||S}C NS service cable to ${w===`Pillar`?`Pillar Box# `+T:w+`# `+T}</strong></div>
+        ${se?``:`
+        <div><strong>${{one:`Single phase`,two:`Two phase`,three:`Three phase`}[C.toLowerCase()]||C} ${w}A</strong></div>
+        <div><strong>Connect [size]mm ${{one:`1`,two:`2`,three:`3`}[C.toLowerCase()]||C}C NS service cable to ${T===`Pillar`?`Pillar Box# `+E:T+`# `+E}</strong></div>
         <div><strong>COC, ROI?, & lock off photo attached</strong></div>
-        <div><strong>Permanent/Temporary: ${v}</strong></div>
+        <div><strong>Permanent/Temporary: ${y}</strong></div>
         <div><strong>J A Russell PO# 45XXXX</strong></div>
-        ${ae?`<div><strong>Asset missing</strong></div>`:``}
-        ${oe?`<div><strong>Asset number missing</strong></div>`:``}
+        ${ue?`<div><strong>Asset missing</strong></div>`:``}
+        ${de?`<div><strong>Asset number missing</strong></div>`:``}
         `}
-        ${re?`<strong>
-        <div>${w} ${T}</div>
-        <div>Transformer Site ID ${E}</div>
-        <div>Site address: ${y}</div>
-        <div>${o(`Additional Details`,x)}</div>
-        <div>High level job scope ${D}</div>
+        ${se?`<strong>
+        <div>${T} ${E}</div>
+        <div>Transformer Site ID ${D}</div>
+        <div>Site address: ${b}</div>
+        <div>${o(`Additional Details`,S)}</div>
+        <div>High level job scope ${O}</div>
         <br>
         <div>ELECTRICIAN DETAILS</strong></div>
         `:`
         <div><br></div>
         <div><strong>SITE DETAILS</strong></div>
-        <div>${o(`Site Address`,y)}</div>
-        <div>${o(`Legal Description`,b)}</div>  
-        <div>${o(`Additional Details`,x)}</div>
+        <div>${o(`Site Address`,b)}</div>
+        <div>${o(`Legal Description`,x)}</div>  
+        <div>${o(`Additional Details`,S)}</div>
         <div><br></div>
         <div><strong>CONNECTION DETAILS - NEW CONNECTION</strong></div>
-        <div>${o(`Phases Required`,S)}</div>
-        <div>${o(`Load Demand`,C)}</div>
-        <div>${w===`Transformer`?``:o(w===`Pillar`?`Pillar Box#`:w+`#`,T)}</div>
-        <div>${o(`Transformer Site ID`,E)}</div>
-        <div>${o(`High Level Job Scope`,D)}</div>
-        <div>${o(`Land Description`,O)}</div>
-        <div>${o(`Comments`,k)}</div>
+        <div>${o(`Phases Required`,C)}</div>
+        <div>${o(`Load Demand`,w)}</div>
+        <div>${T===`Transformer`?``:o(T===`Pillar`?`Pillar Box#`:T+`#`,E)}</div>
+        <div>${o(`Transformer Site ID`,D)}</div>
+        <div>${o(`High Level Job Scope`,O)}</div>
+        <div>${o(`Land Description`,k)}</div>
+        <div>${o(`Comments`,ee)}</div>
         <div><br></div>
-        <div><strong>ELECTRICIAN DETAILS</strong></div>
+        <div><strong>${R}</strong></div>
         `}
-        <div>${o(`Company`,ee)}</div>
-        <div>${o(`Name`,A)}</div>
-        <div>${o(`Phone`,j)}</div>
-        <div>${o(`Email`,te)}</div>
-        <div>${o(`Nominated Inspector/Meter Installer`,ne)}</div>
+        <div>${o(`Company`,fe)}</div>
+        <div>${o(`Name`,I)}</div>
+        <div>${o(`Phone`,L)}</div>
+        <div>${o(`Email`,pe)}</div>
+        <div>${o(`Nominated Inspector/Meter Installer`,me)}</div>
         
-        ${re?`
+        ${se?`
             <div style="text-align:center;">
                 <span style="font-weight:bold; font-size:10pt;">
                     Carry out decommission to PowerCo standard. Fill in isolation/disconnection tag attached and leave in meter box at site so that third parties can clearly see the status of the connection
@@ -281,7 +281,7 @@ end`},fa=function(){return`<`+[...arguments].join(``)+`>`},pa=function(e){return
             </div>
             <div style="text-align:center;">
                 <span style="font-weight:bold; font-size:10pt;">
-                    Contact electrician ${j} or Kate/Chisora if any issues
+                    Contact electrician ${te} or Kate/Chisora if any issues
                 </span>
             </div>
         `}
