@@ -204,59 +204,58 @@ end`},fa=function(){return`<`+[...arguments].join(``)+`>`},pa=function(e){return
 
         </table>
         
-        `)}async function i(){let e=document.createElement(`div`);e.innerHTML=t,await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([t],{type:`text/html`}),"text/plain":new Blob([e.innerText],{type:`text/plain`})})])}return(0,qd.jsxs)(qd.Fragment,{children:[(0,qd.jsx)(`h1`,{children:`GW Table Formatter`}),(0,qd.jsx)(`div`,{ref:e,className:`GW-input`,contentEditable:!0,suppressContentEditableWarning:!0}),(0,qd.jsx)(`br`,{}),(0,qd.jsx)(`button`,{onClick:r,children:`Convert`}),(0,qd.jsx)(`button`,{onClick:i,children:`Copy Output`}),(0,qd.jsx)(`div`,{className:`output`,dangerouslySetInnerHTML:{__html:t}})]})}var Kd,qd,Jd=o((()=>{Kd=l(d()),oe(),qd=ce()}));function Yd(){let e=(0,Xd.useRef)(null),[t,n]=(0,Xd.useState)(``),[r,i]=(0,Xd.useState)(``);function a(e,t,n=null){let r=e.indexOf(t);if(r===-1)return``;let i=r+t.length,a=e.length;return n&&(Array.isArray(n)||(n=[n]),n.forEach(t=>{let n=e.indexOf(t,i);n!==-1&&n<a&&(a=n)})),e.substring(i,a).trim()}function o(e,t){return t?.trim()?`${e}: ${t}`:``}function s(e){if(!e)return``;let t=e.replace(/\D/g,``);return t.startsWith(`640`)&&(t=`64`+t.substring(3)),t.startsWith(`642`)&&t.length>=10?(`0`+t.substring(2)).replace(/(\d{3})(\d{3})(\d+)/,`$1 $2 $3`):t.startsWith(`64`)&&t.length>=10?(`0`+t.substring(2)).replace(/(\d{2})(\d{3})(\d+)/,`$1 $2 $3`):e}function c(e,t,n=[]){let r=e.indexOf(t);if(r===-1)return``;let i=r+t.length,a=e.length;return n.forEach(t=>{let n=e.indexOf(t,i);n!==-1&&n<a&&(a=n)}),e.substring(i,a).trim()}function l(){let n=e.current.innerText,r=e.current.innerHTML,l=c(n,`SITE DETAILS`,[`CONNECTION DETAILS`]),u=c(n,`CONNECTION DETAILS - NEW CONNECTION`,[`APPLICANT DETAILS`]),d=c(n,`ELECTRICIAN DETAILS`,[`ELECTRICITY BILL PAYER DETAILS`]),f=t,p=a(f,`Work order number:`,`Subject:`),m=a(f,`Subject:`,`Work order status:`).split(`-`).slice(0,3).join(`-`),h=a(f,`ICP number:`,`END`),g=a(n,`Network Ready Job Classification:`,[`Permanent/Temporary:`,`SITE DETAILS`]),_=a(n,`Permanent/Temporary:`,`SITE DETAILS`),v=a(l,`Site Address:`,[`Legal Description:`,`Additional Details`]),y=a(l,`Legal Description:`,`Additional Details:`),b=a(l,`Additional Details:`,`Meter Number`),x=a(u,`Phases Required:`,[`Load Demand:`,`Required`]),S=a(u,`Load Demand:`,`BTS Installation Details:`),C=a(u,`Asset Type:`,`Asset Number:`),w=a(u,`Asset Number:`,`Transformer Site ID:`),T=a(u,`Transformer Site ID:`,`High Level Job Scope:`),E=a(u,`High Level Job Scope:`,`Land Description:`),D=a(u,`Land Description:`,`Comments:`),O=a(u,`Comments:`),k=a(d,`Company:`,`Name:`),ee=a(d,`Name:`,`Phone:`),A=s(a(d,`Phone:`,`Email:`)),j=a(d,`Email:`,`Nominated Inspector/Meter Installer:`),te=a(d,`Nominated Inspector/Meter Installer:`,`END`),ne=g.toLowerCase().includes(`decommission`),re=new Date;re.setMonth(re.getMonth()+1),i(`
-        <div>${p} ${m}-${v}</div>
-        <div>4100000589</div>
-        <div>${String(re.getDate()).padStart(2,`0`)+`/`+String(re.getMonth()+1).padStart(2,`0`)+`/`+re.getFullYear()}</div>
+        `)}async function i(){let e=document.createElement(`div`);e.innerHTML=t,await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([t],{type:`text/html`}),"text/plain":new Blob([e.innerText],{type:`text/plain`})})])}return(0,qd.jsxs)(qd.Fragment,{children:[(0,qd.jsx)(`h1`,{children:`GW Table Formatter`}),(0,qd.jsx)(`div`,{ref:e,className:`GW-input`,contentEditable:!0,suppressContentEditableWarning:!0}),(0,qd.jsx)(`br`,{}),(0,qd.jsx)(`button`,{onClick:r,children:`Convert`}),(0,qd.jsx)(`button`,{onClick:i,children:`Copy Output`}),(0,qd.jsx)(`div`,{className:`output`,dangerouslySetInnerHTML:{__html:t}})]})}var Kd,qd,Jd=o((()=>{Kd=l(d()),oe(),qd=ce()}));function Yd(){let e=(0,Xd.useRef)(null),[t,n]=(0,Xd.useState)(``),[r,i]=(0,Xd.useState)(``);function a(e,t,n=null){let r=e.indexOf(t);if(r===-1)return``;let i=r+t.length,a=e.length;return n&&(Array.isArray(n)||(n=[n]),n.forEach(t=>{let n=e.indexOf(t,i);n!==-1&&n<a&&(a=n)})),e.substring(i,a).trim()}function o(e,t){return t?.trim()?`${e}: ${t}`:``}function s(e){let t=(e||``).toLowerCase();return[`whanganui`,`wanganui`,`marton`,`taihape`,`bulls`,`ohakune`,`brunswick`,`hunterville`,`castlecliff`,`durie hill`,`gonville`,`springvale`].some(e=>t.includes(e))?`4100000590`:`4100000589`}function c(e){if(!e)return``;let t=e.replace(/\D/g,``);return t.startsWith(`640`)&&(t=`64`+t.substring(3)),t.startsWith(`642`)&&t.length>=10?(`0`+t.substring(2)).replace(/(\d{3})(\d{3})(\d+)/,`$1 $2 $3`):t.startsWith(`64`)&&t.length>=10?(`0`+t.substring(2)).replace(/(\d{2})(\d{3})(\d+)/,`$1 $2 $3`):e}function l(e,t,n=[]){let r=e.indexOf(t);if(r===-1)return``;let i=r+t.length,a=e.length;return n.forEach(t=>{let n=e.indexOf(t,i);n!==-1&&n<a&&(a=n)}),e.substring(i,a).trim()}function u(){let n=e.current.innerText,r=e.current.innerHTML,u=l(n,`SITE DETAILS`,[`CONNECTION DETAILS`]),d=l(n,`CONNECTION DETAILS - NEW CONNECTION`,[`APPLICANT DETAILS`]),f=l(n,`ELECTRICIAN DETAILS`,[`ELECTRICITY BILL PAYER DETAILS`]),p=t,m=a(p,`Work order number:`,`Subject:`),h=a(p,`Subject:`,`Work order status:`).split(`-`).slice(0,3).join(`-`),g=a(p,`ICP number:`,`END`),_=a(n,`Network Ready Job Classification:`,[`Permanent/Temporary:`,`SITE DETAILS`]),v=a(n,`Permanent/Temporary:`,`SITE DETAILS`),y=a(u,`Site Address:`,[`Legal Description:`,`Additional Details`]),b=a(u,`Legal Description:`,`Additional Details:`),x=a(u,`Additional Details:`,`Meter Number`),S=a(d,`Phases Required:`,[`Load Demand:`,`Required`]),C=a(d,`Load Demand:`,`BTS Installation Details:`),w=a(d,`Asset Type:`,`Asset Number:`),T=a(d,`Asset Number:`,`Transformer Site ID:`),E=a(d,`Transformer Site ID:`,`High Level Job Scope:`),D=a(d,`High Level Job Scope:`,`Land Description:`),O=a(d,`Land Description:`,`Comments:`),k=a(d,`Comments:`),ee=a(f,`Company:`,`Name:`),A=a(f,`Name:`,`Phone:`),j=c(a(f,`Phone:`,`Email:`)),te=a(f,`Email:`,`Nominated Inspector/Meter Installer:`),ne=a(f,`Nominated Inspector/Meter Installer:`,`END`),re=_.toLowerCase().includes(`decommission`),M=v.toLowerCase().includes(`temp`)?`BTS Connection`:_,N=new Date;N.setMonth(N.getMonth()+1),String(N.getDate()).padStart(2,`0`)+``+String(N.getMonth()+1).padStart(2,`0`)+N.getFullYear(),i(`
+        <div>${m} ${h}-${y}</div>
+        <div>${s(y)}</div>
 
         <div style="text-align:center;">
             <span style="font-weight:bold; text-decoration: underline; font-size:10pt;">
-                ${p} - ${v||y} - New/BTS/Modify Connection
+                ${m} - ${y||b} - ${M}
             </span>
         </div>
         <div><br></div>
-        <div><strong>${g} ${h}</strong></div>
+        <div><strong>${M} ${g}</strong></div>
         
-        ${ne?``:`
-        <div><strong>${{one:`Single phase`,two:`Two phase`,three:`Three phase`}[x.toLowerCase()]||x} ${S}A</strong></div>
-        <div><strong>Connect [size]mm ${{one:`1`,two:`2`,three:`3`}[x.toLowerCase()]||x}C NS service cable to ${C===`Pillar`?`Pillar Box # `+w:C+` # `+w}</strong></div>
+        ${re?``:`
+        <div><strong>${{one:`Single phase`,two:`Two phase`,three:`Three phase`}[S.toLowerCase()]||S} ${C}A</strong></div>
+        <div><strong>Connect [size]mm ${{one:`1`,two:`2`,three:`3`}[S.toLowerCase()]||S}C NS service cable to ${w===`Pillar`?`Pillar Box# `+T:w+`# `+T}</strong></div>
         <div><strong>COC, ROI?, & lock off photo attached</strong></div>
-        <div><strong>Permanent/Temporary: ${_}</strong></div>
+        <div><strong>Permanent/Temporary: ${v}</strong></div>
         <div><strong>J A Russell PO# 45XXXX</strong></div>
         `}
-        ${ne?`<strong>
-        <div>${C} ${w}</div>
-        <div>Transformer Site ID ${T}</div>
-        <div>Site address: ${v}</div>
-        <div>${o(`Additional Details`,b)}</div>
-        <div>High level job scope ${E}</div>
+        ${re?`<strong>
+        <div>${w} ${T}</div>
+        <div>Transformer Site ID ${E}</div>
+        <div>Site address: ${y}</div>
+        <div>${o(`Additional Details`,x)}</div>
+        <div>High level job scope ${D}</div>
         <br>
         <div>ELECTRICIAN DETAILS</strong></div>
         `:`
         <div><br></div>
         <div><strong>SITE DETAILS</strong></div>
-        <div>${o(`Site Address`,v)}</div>
-        <div>${o(`Legal Description`,y)}</div>
-        <div>${o(`Additional Details`,b)}</div>
+        <div>${o(`Site Address`,y)}</div>
+        <div>${o(`Legal Description`,b)}</div>  
+        <div>${o(`Additional Details`,x)}</div>
         <div><br></div>
         <div><strong>CONNECTION DETAILS - NEW CONNECTION</strong></div>
-        <div>${o(`Phases Required`,x)}</div>
-        <div>${o(`Load Demand`,S)}</div>
-        <div>${C===`Transformer`?``:o(C===`Pillar`?`Pillar Box#`:C+`#`,w)}</div>
-        <div>${o(`Transformer Site ID`,T)}</div>
-        <div>${o(`High Level Job Scope`,E)}</div>
-        <div>${o(`Land Description`,D)}</div>
-        <div>${o(`Comments`,O)}</div>
+        <div>${o(`Phases Required`,S)}</div>
+        <div>${o(`Load Demand`,C)}</div>
+        <div>${w===`Transformer`?``:o(w===`Pillar`?`Pillar Box#`:w+`#`,T)}</div>
+        <div>${o(`Transformer Site ID`,E)}</div>
+        <div>${o(`High Level Job Scope`,D)}</div>
+        <div>${o(`Land Description`,O)}</div>
+        <div>${o(`Comments`,k)}</div>
         <div><br></div>
         <div><strong>ELECTRICIAN DETAILS</strong></div>
         `}
-        <div>${o(`Company`,k)}</div>
-        <div>${o(`Name`,ee)}</div>
-        <div>${o(`Phone`,A)}</div>
-        <div>${o(`Email`,j)}</div>
-        <div>${o(`Nominated Inspector/Meter Installer`,te)}</div>
+        <div>${o(`Company`,ee)}</div>
+        <div>${o(`Name`,A)}</div>
+        <div>${o(`Phone`,j)}</div>
+        <div>${o(`Email`,te)}</div>
+        <div>${o(`Nominated Inspector/Meter Installer`,ne)}</div>
         
-        ${ne?`
+        ${re?`
             <div style="text-align:center;">
                 <span style="font-weight:bold; font-size:10pt;">
                     Carry out decommission to PowerCo standard. Fill in isolation/disconnection tag attached and leave in meter box at site so that third parties can clearly see the status of the connection
@@ -280,11 +279,11 @@ end`},fa=function(){return`<`+[...arguments].join(``)+`>`},pa=function(e){return
             </div>
             <div style="text-align:center;">
                 <span style="font-weight:bold; font-size:10pt;">
-                    Contact electrician ${A} or Kate/Chisora if any issues
+                    Contact electrician ${j} or Kate/Chisora if any issues
                 </span>
             </div>
         `}
         <br>
         <strong>ORIGINAL SAP TEXT</strong><br>
         <div>${r}</div>
-        `)}async function u(){let e=document.createElement(`div`);e.innerHTML=r,await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([r],{type:`text/html`}),"text/plain":new Blob([e.innerText],{type:`text/plain`})})])}return(0,Zd.jsxs)(Zd.Fragment,{children:[(0,Zd.jsx)(`h1`,{children:`Network Ready Formatter`}),(0,Zd.jsxs)(`div`,{className:`inputBoxes`,children:[(0,Zd.jsx)(`div`,{ref:e,className:`GW-input`,contentEditable:!0,suppressContentEditableWarning:!0}),(0,Zd.jsx)(`textarea`,{placeholder:`WO Email Text`,value:t,onChange:e=>n(e.target.value)})]}),(0,Zd.jsxs)(`div`,{className:`centered-buttons-div`,children:[(0,Zd.jsx)(`button`,{onClick:l,children:`Convert`}),(0,Zd.jsx)(`button`,{onClick:u,children:`Copy Output`})]}),(0,Zd.jsx)(`div`,{className:`output`,dangerouslySetInnerHTML:{__html:r}})]})}var Xd,Zd,Qd=o((()=>{Xd=l(d()),oe(),Zd=ce()})),$d=o((()=>{}));function ef(){let[e,t]=(0,tf.useState)(`dg`),[n,r]=(0,tf.useState)(!0);function i(){switch(e){case`gw`:return(0,nf.jsx)(Gd,{});case`nr`:return(0,nf.jsx)(Yd,{});case`pdf`:return(0,nf.jsx)(Vd,{});default:return(0,nf.jsx)(P,{})}}return(0,nf.jsxs)(`div`,{className:`layout`,children:[(0,nf.jsxs)(`aside`,{className:`sidebar ${n?`open`:`closed`}`,children:[(0,nf.jsx)(`button`,{className:`toggle-btn`,onClick:()=>r(!n),children:(0,nf.jsx)(ie,{})}),n&&(0,nf.jsxs)(nf.Fragment,{children:[(0,nf.jsx)(`button`,{onClick:()=>t(`dg`),children:n?`DG Formatter`:`DG`}),(0,nf.jsx)(`button`,{onClick:()=>t(`pdf`),children:n?`PDF Splitter`:`PDF`}),(0,nf.jsx)(`button`,{onClick:()=>t(`gw`),children:n?`GW Formatter`:`GW`}),(0,nf.jsx)(`button`,{onClick:()=>t(`nr`),children:n?`NR Formatter`:`NR`})]})]}),(0,nf.jsx)(`main`,{className:`content`,children:i()})]})}var tf,nf,rf=o((()=>{tf=l(d()),ae(),de(),Wd(),Jd(),Qd(),$d(),nf=ce()}));s((()=>{d();var e=l(_());rf();var t=ce();e.createRoot(document.getElementById(`root`)).render((0,t.jsx)(ef,{}))}))();
+        `)}async function d(){let e=document.createElement(`div`);e.innerHTML=r,await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([r],{type:`text/html`}),"text/plain":new Blob([e.innerText],{type:`text/plain`})})])}return(0,Zd.jsxs)(Zd.Fragment,{children:[(0,Zd.jsx)(`h1`,{children:`Network Ready Formatter`}),(0,Zd.jsxs)(`div`,{className:`inputBoxes`,children:[(0,Zd.jsx)(`div`,{ref:e,className:`GW-input`,contentEditable:!0,suppressContentEditableWarning:!0}),(0,Zd.jsx)(`textarea`,{placeholder:`WO Email Text`,value:t,onChange:e=>n(e.target.value)})]}),(0,Zd.jsxs)(`div`,{className:`centered-buttons-div`,children:[(0,Zd.jsx)(`button`,{onClick:u,children:`Convert`}),(0,Zd.jsx)(`button`,{onClick:d,children:`Copy Output`})]}),(0,Zd.jsx)(`div`,{className:`output`,dangerouslySetInnerHTML:{__html:r}})]})}var Xd,Zd,Qd=o((()=>{Xd=l(d()),oe(),Zd=ce()})),$d=o((()=>{}));function ef(){let[e,t]=(0,tf.useState)(`dg`),[n,r]=(0,tf.useState)(!0);function i(){switch(e){case`gw`:return(0,nf.jsx)(Gd,{});case`nr`:return(0,nf.jsx)(Yd,{});case`pdf`:return(0,nf.jsx)(Vd,{});default:return(0,nf.jsx)(P,{})}}return(0,nf.jsxs)(`div`,{className:`layout`,children:[(0,nf.jsxs)(`aside`,{className:`sidebar ${n?`open`:`closed`}`,children:[(0,nf.jsx)(`button`,{className:`toggle-btn`,onClick:()=>r(!n),children:(0,nf.jsx)(ie,{})}),n&&(0,nf.jsxs)(nf.Fragment,{children:[(0,nf.jsx)(`button`,{onClick:()=>t(`dg`),children:n?`DG Formatter`:`DG`}),(0,nf.jsx)(`button`,{onClick:()=>t(`pdf`),children:n?`PDF Splitter`:`PDF`}),(0,nf.jsx)(`button`,{onClick:()=>t(`gw`),children:n?`GW Formatter`:`GW`}),(0,nf.jsx)(`button`,{onClick:()=>t(`nr`),children:n?`NR Formatter`:`NR`})]})]}),(0,nf.jsx)(`main`,{className:`content`,children:i()})]})}var tf,nf,rf=o((()=>{tf=l(d()),ae(),de(),Wd(),Jd(),Qd(),$d(),nf=ce()}));s((()=>{d();var e=l(_());rf();var t=ce();e.createRoot(document.getElementById(`root`)).render((0,t.jsx)(ef,{}))}))();
