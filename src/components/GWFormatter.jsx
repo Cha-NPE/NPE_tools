@@ -4,6 +4,7 @@ import "./styles.css";
 function GWFormatter() {
     const inputRef = useRef(null);
     const [outputHtml, setOutputHtml] = useState("");
+    const [clearInputsOnCopy, setClearInputsOnCopy] = useState(false);
 
     function convert() {
         const sourceTable = inputRef.current.querySelector("table");
@@ -170,6 +171,11 @@ function GWFormatter() {
                 )
             })
         ]);
+
+        if (clearInputsOnCopy && inputRef.current) {
+            inputRef.current.innerHTML = "";
+            inputRef.current.textContent = "";
+        }
     }
 
     return (
@@ -177,11 +183,7 @@ function GWFormatter() {
             <h1>GW Table Formatter</h1>
             <div ref={inputRef} className="GW-input" contentEditable suppressContentEditableWarning/>
             <br />
-            <div className= "centered-buttons-div">
-                <button onClick={convert}>Convert</button>
-                <button onClick={copyOutput}>Copy Output</button>
-            </div>
-            <div>
+            <div className="centered-buttons-div">
                 <label style={{ marginRight: "12px" }}>
                     <input
                         type="checkbox"
@@ -190,6 +192,8 @@ function GWFormatter() {
                     />
                     Clear input boxes after copy
                 </label>
+                <button onClick={convert}>Convert</button>
+                <button onClick={copyOutput}>Copy Output</button>
             </div>
             <div className="output" dangerouslySetInnerHTML={{__html: outputHtml}}/>
         </>

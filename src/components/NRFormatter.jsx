@@ -307,7 +307,7 @@ function NRFormatter() {
                 <button onClick={convertSAPText}>Convert</button>
                 <button onClick={copyOutput}>Copy Output</button>
             </div>
-            <div>
+            <div className="centered-buttons-div">
                 <label style={{ marginRight: "12px" }}>
                     <input
                         type="checkbox"
