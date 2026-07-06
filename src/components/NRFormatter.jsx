@@ -109,7 +109,6 @@ function NRFormatter() {
         const inspector = getValue(electricianSection, "Nominated Inspector/Meter Installer:", "END");
 
         const isDecommission = jobClassification.toLowerCase().includes("decommission");
-        const titleClassification = jobClassification || "New/BTS/Modify Connection";
 
         const dueDate = new Date();
         dueDate.setMonth(dueDate.getMonth() + 1);
@@ -124,7 +123,7 @@ function NRFormatter() {
 
         <div style="text-align:center;">
             <span style="font-weight:bold; text-decoration: underline; font-size:10pt;">
-                ${workOrderNumber} - ${siteAddress || legalDescription} - ${titleClassification}
+                ${workOrderNumber} - ${siteAddress || legalDescription} - New/BTS/Modify Connection
             </span>
         </div>
         <div><br></div>
