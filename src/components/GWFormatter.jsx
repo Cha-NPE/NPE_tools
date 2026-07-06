@@ -184,6 +184,10 @@ function GWFormatter() {
             <div ref={inputRef} className="GW-input" contentEditable suppressContentEditableWarning/>
             <br />
             <div className="centered-buttons-div">
+                <button onClick={convert}>Convert</button>
+                <button onClick={copyOutput}>Copy Output</button>
+            </div>
+            <div className="centered-buttons-div">
                 <label style={{ marginRight: "12px" }}>
                     <input
                         type="checkbox"
@@ -192,10 +196,6 @@ function GWFormatter() {
                     />
                     Clear input boxes after copy
                 </label>
-            </div>
-            <div className="centered-buttons-div">
-                <button onClick={convert}>Convert</button>
-                <button onClick={copyOutput}>Copy Output</button>
             </div>
             <div className="output" dangerouslySetInnerHTML={{__html: outputHtml}}/>
         </>
