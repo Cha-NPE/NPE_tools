@@ -135,6 +135,10 @@ function NRFormatter() {
         const isDecommission = jobClassification.toLowerCase().includes("decommission");
         const isTemporary = permanent.toLowerCase().includes("temp");
         const displayJobClassification = isTemporary ? "BTS Connection" : jobClassification;
+        const normalizedAssetType = (assetType || "").trim();
+        const normalizedAssetNumber = (assetNumber || "").trim();
+        const assetTypeMissing = !normalizedAssetType || normalizedAssetType.toLowerCase() === "transformer";
+        const assetNumberMissing = !normalizedAssetNumber;
 
         const dueDate = new Date();
         dueDate.setMonth(dueDate.getMonth() + 1);
@@ -172,6 +176,8 @@ function NRFormatter() {
         <div><strong>COC, ROI?, & lock off photo attached</strong></div>
         <div><strong>Permanent/Temporary: ${permanent}</strong></div>
         <div><strong>J A Russell PO# 45XXXX</strong></div>
+        ${assetTypeMissing ? `<div><strong>Asset missing</strong></div>` : ``}
+        ${assetNumberMissing ? `<div><strong>Asset number missing</strong></div>` : ``}
         ` : ``}
         ${isDecommission ? `<strong>
         <div>${assetType} ${assetNumber}</div>
