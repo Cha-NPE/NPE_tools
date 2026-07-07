@@ -20,6 +20,8 @@ function GWFormatter() {
         let wo = "";
         let site = "";
         let scopeHtml = "";
+        const detailLabels = ["Powerco's PM:", "WO:", "Site", "Scope of Services:"];
+        const labelColWidthPx = Math.max(140, Math.max(...detailLabels.map(label => label.length)) * 7 + 18);
 
         rows.forEach(row => {
             const cells = [...row.cells];
@@ -111,11 +113,12 @@ function GWFormatter() {
         style="
         border-collapse:collapse;
         width:100%;
+        table-layout:fixed;
         font-family:Arial,sans-serif;
         font-size:11pt;">
 
             <tr>
-                <td style="background-color:#c8b7d9;">
+                <td style="background-color:#c8b7d9; width:${labelColWidthPx}px; white-space:nowrap;">
                     <strong>Overview</strong>
                 </td>
 
@@ -123,17 +126,17 @@ function GWFormatter() {
             </tr>
 
             <tr>
-                <td><strong>Powerco's PM:</strong></td>
+                <td style="width:${labelColWidthPx}px; white-space:nowrap;"><strong>Powerco's PM:</strong></td>
                 <td>${pm}</td>
             </tr>
 
             <tr>
-                <td><strong>WO:</strong></td>
+                <td style="width:${labelColWidthPx}px; white-space:nowrap;"><strong>WO:</strong></td>
                 <td>${wo}</td>
             </tr>
 
             <tr>
-                <td style="background-color:#c8b7d9;">
+                <td style="background-color:#c8b7d9; width:${labelColWidthPx}px; white-space:nowrap;">
                     <strong>Specifications</strong>
                 </td>
 
@@ -141,12 +144,12 @@ function GWFormatter() {
             </tr>
 
             <tr>
-                <td><strong>Site</strong></td>
+                <td style="width:${labelColWidthPx}px; white-space:nowrap;"><strong>Site</strong></td>
                 <td>${site}</td>
             </tr>
 
             <tr>
-                <td style="vertical-align:top;">
+                <td style="vertical-align:top; width:${labelColWidthPx}px; white-space:nowrap;">
                     <strong>Scope of Services:</strong>
                 </td>
 
