@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import * as pdfjsLib from "pdfjs-dist";
 import { createWorker } from "tesseract.js";
@@ -7,8 +7,41 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.mi
 
 function PdfSplitter() {
     const fileInputRef = useRef(null);
+    const [ocrApiUrl, setOcrApiUrl] = useState(import.meta.env.VITE_OCR_API_URL || "http://localhost:8000/ocr");
+
+    async function getFilenameFromRemoteOCR(pdfBytes) {
+        const formData = new FormData();
+        const blob = new Blob([pdfBytes], { type: "application/pdf" });
+        formData.append("pdf", blob, "document.pdf");
+
+        const response = await fetch(ocrApiUrl, {
+            method: "POST",
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`OCR server request failed with status ${response.status}`);
+        }
+
+        const data = await response.json().catch(() => null);
+        return data?.filename ?? null;
+    }
 
     async function getFilenameFromOCR(pdfBytes) {
+        const normalizedUrl = ocrApiUrl?.trim();
+
+        if (normalizedUrl) {
+            try {
+                const remoteFilename = await getFilenameFromRemoteOCR(pdfBytes);
+                if (remoteFilename) {
+                    return remoteFilename;
+                }
+            }
+            catch (error) {
+                console.warn("Remote OCR failed, falling back to local OCR:", error);
+            }
+        }
+
         const worker = await createWorker("eng");
 
         try {
@@ -219,6 +252,20 @@ function PdfSplitter() {
 
             <br />
             <br />
+
+            <div style={{ marginTop: "12px", marginBottom: "12px" }}>
+                <label htmlFor="ocr-api-url" style={{ display: "block", marginBottom: "4px" }}>
+                    OCR API URL
+                </label>
+                <input
+                    id="ocr-api-url"
+                    type="text"
+                    value={ocrApiUrl}
+                    onChange={(e) => setOcrApiUrl(e.target.value)}
+                    placeholder="http://localhost:8000/ocr"
+                    style={{ width: "320px", maxWidth: "100%" }}
+                />
+            </div>
 
             <button onClick={splitPdf}>
                 Split PDF

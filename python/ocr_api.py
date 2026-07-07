@@ -1,11 +1,14 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-import tempfile
 import os
+import tempfile
 
 from python.test_OCR import extract_filename
 
 app = FastAPI()
+
+HOST = os.getenv("OCR_HOST", "0.0.0.0")
+PORT = int(os.getenv("OCR_PORT", "8000"))
 
 app.add_middleware(
     CORSMiddleware,

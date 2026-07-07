@@ -142,7 +142,16 @@ function NRFormatter() {
 
         const isDecommission = jobClassification.toLowerCase().includes("decommission");
         const isTemporary = permanent.toLowerCase().includes("temp");
-        const displayJobClassification = isTemporary ? "BTS Connection" : jobClassification;
+        const normalizedJobClassification = (jobClassification || "").trim();
+        let displayJobClassification = normalizedJobClassification;
+
+        if (isTemporary) {
+            displayJobClassification = "BTS Connection";
+        } else if (normalizedJobClassification.toLowerCase() === "new icp") {
+            displayJobClassification = "New Connection";
+        } else if (normalizedJobClassification.toLowerCase() === "modify icp") {
+            displayJobClassification = "Modify Connection";
+        }
         const normalizedAssetType = (assetType || "").trim();
         const normalizedAssetNumber = (assetNumber || "").trim();
         const assetTypeMissing = !normalizedAssetType || normalizedAssetType.toLowerCase() === "transformer";
