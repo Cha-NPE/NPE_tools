@@ -6,6 +6,32 @@ function GWFormatter() {
     const [outputHtml, setOutputHtml] = useState("");
     const [clearInputsOnCopy, setClearInputsOnCopy] = useState(false);
 
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function getPlainCellText(cell) {
+        const divs = [...cell.querySelectorAll("div")];
+        const parts = divs.length > 0
+            ? divs.map(div => div.textContent.trim()).filter(Boolean)
+            : cell.textContent.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+
+        return parts.map(part => escapeHtml(part)).join("<br>");
+    }
+
+    function cleanSiteValue(value) {
+        return String(value)
+            .replace(/<br\s*\/?>/gi, " ")
+            .replace(/\s+/g, " ")
+            .replace(/^\s*The address and legal description of the Site is:\s*/i, "")
+            .trim();
+    }
+
     function convert() {
         const sourceTable = inputRef.current.querySelector("table");
 
@@ -19,31 +45,24 @@ function GWFormatter() {
         let pm = "";
         let wo = "";
         let site = "";
-        let scopeHtml = "";
         const detailLabels = ["Powerco's PM:", "WO:", "Site", "Scope of Services:"];
-        const labelColWidthPx = 250;
+        const labelColWidthPx = 2000;
 
         rows.forEach(row => {
             const cells = [...row.cells];
             if (cells.length < 2) return;
-            const label = cells[0].innerText.trim();
-            const value = cells[1].innerText.trim();
+            const label = cells[0].textContent.trim();
+            const value = cells[1].textContent.trim();
 
             if (label.includes("Project Manager"))
-                pm = value;
+                pm = escapeHtml(value);
 
             if (label.includes("Work Order Number"))
-                wo = value;
+                wo = escapeHtml(value);
 
             if (label === "Site") {
-                const divs = [...cells[1].querySelectorAll("div")];
-                const siteCellHtml = divs.length > 0
-                    ? divs.map(div => div.innerHTML.trim()).filter(Boolean).join("<br>")
-                    : cells[1].innerHTML.trim();
-                site = siteCellHtml;
+                site = cleanSiteValue(getPlainCellText(cells[1]));
             }
-
-            if (label.includes("Scope of Services")) {scopeHtml = "";}
         });
 
         const footerTable = `
@@ -99,7 +118,7 @@ function GWFormatter() {
 
             <tr>
                 <td>NAPA:</td>
-                <td>J.A RUSSELL:</td>
+                <td>J A RUSSELL:</td>
             </tr>
 
             <tr>
@@ -119,33 +138,33 @@ function GWFormatter() {
         font-size:11pt;">
 
             <tr>
-                <td style="background-color:#c8b7d9; white-space:nowrap;"><strong>Overview</strong></td>
+                <td style="background-color:#c8b7d9; white-space:nowrap; width:${labelColWidthPx}px;"><strong>Overview</strong></td>
                 <td></td>
             </tr>
 
             <tr>
-                <td style="white-space:nowrap;">Powerco's PM:</td>
-                <td>${pm}</td>
+                <td style="white-space:nowrap; width:${labelColWidthPx}px;">Powerco's PM:</td>
+                <td style="color:#000;">${pm}</td>
             </tr>
 
             <tr>
-                <td style="white-space:nowrap;">WO:</td>
-                <td>${wo}</td>
+                <td style="white-space:nowrap; width:${labelColWidthPx}px;">WO:</td>
+                <td style="color:#000;">${wo}</td>
             </tr>
 
             <tr>
-                <td style="background-color:#c8b7d9; white-space:nowrap;"><strong>Specifications</strong></td>
+                <td style="background-color:#c8b7d9; white-space:nowrap; width:${labelColWidthPx}px;"><strong>Specifications</strong></td>
                 <td></td>
             </tr>
 
             <tr>
-                <td style= " white-space:nowrap;">Site</td>
-                <td>${site}</td>
+                <td style="white-space:nowrap; width:${labelColWidthPx}px;">Site</td>
+                <td style="color:#000;">${site}</td>
             </tr>
 
             <tr>
-                <td style="vertical-align:top; white-space:nowrap;">Scope of Services:</td>
-                <td>${scopeHtml}</td>
+                <td style="vertical-align:top; white-space:nowrap; width:${labelColWidthPx}px;">Scope of Services:</td>
+                <td style="color:#000;"></td>
             </tr>
 
         </table>
