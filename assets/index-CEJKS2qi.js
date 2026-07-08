@@ -111,32 +111,32 @@ end`},ga=function(){return`<`+[...arguments].join(``)+`>`},_a=function(e){return
         font-size:11pt;">
 
             <tr>
-                <td style="background-color:#c8b7d9; white-space:nowrap; width:180px;"><strong>Overview</strong></td>
+                <td style="background-color:#c8b7d9; white-space:nowrap; width:600px;"><strong>Overview</strong></td>
                 <td></td>
             </tr>
 
             <tr>
-                <td style="white-space:nowrap; width:180px;">Powerco's PM:</td>
+                <td style="white-space:nowrap; width:600px;">Powerco's PM:</td>
                 <td style="color:#000;">${i}</td>
             </tr>
 
             <tr>
-                <td style="white-space:nowrap; width:180px;">WO:</td>
+                <td style="white-space:nowrap; width:600px;">WO:</td>
                 <td style="color:#000;">${s}</td>
             </tr>
 
             <tr>
-                <td style="background-color:#c8b7d9; white-space:nowrap; width:180px;"><strong>Specifications</strong></td>
+                <td style="background-color:#c8b7d9; white-space:nowrap; width:600px;"><strong>Specifications</strong></td>
                 <td></td>
             </tr>
 
             <tr>
-                <td style="white-space:nowrap; width:180px;">Site</td>
+                <td style="white-space:nowrap; width:600px;">Site</td>
                 <td style="color:#000;">${c}</td>
             </tr>
 
             <tr>
-                <td style="vertical-align:top; white-space:nowrap; width:180px;">Scope of Services:</td>
+                <td style="vertical-align:top; white-space:nowrap; width:600px;">Scope of Services:</td>
                 <td style="color:#000;"></td>
             </tr>
 
