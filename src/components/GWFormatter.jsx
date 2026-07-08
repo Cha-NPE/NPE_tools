@@ -21,7 +21,7 @@ function GWFormatter() {
         let site = "";
         let scopeHtml = "";
         const detailLabels = ["Powerco's PM:", "WO:", "Site", "Scope of Services:"];
-        const labelColWidthPx = Math.max(180, Math.max(...detailLabels.map(label => label.length)) * 7 + 18);
+        const labelColWidthPx = 250;
 
         rows.forEach(row => {
             const cells = [...row.cells];
