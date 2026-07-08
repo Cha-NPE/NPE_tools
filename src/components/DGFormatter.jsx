@@ -102,6 +102,7 @@ function DGFormatter() {
             ${output.address}
             ${formattedRegion}
             ${poNumber}
+            4100000461
             ${output.request} - DG Label`;
 
         await navigator.clipboard.write([
