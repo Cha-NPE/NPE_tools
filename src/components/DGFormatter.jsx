@@ -94,6 +94,7 @@ function DGFormatter() {
             <div><strong>${output.address}</strong></div>
             <div>${formattedRegion}</div>
             <div>${poNumber}</div>
+            <div>4100000461</div>
             <div>${output.request} - DG Label</div>`;
 
         const outputText =
