@@ -108,7 +108,8 @@ end`},ga=function(){return`<`+[...arguments].join(``)+`>`},_a=function(e){return
         style="width:100%;
         border-collapse:collapse;
         font-family:Arial,sans-serif;
-        font-size:11pt;">
+        font-size:11pt;
+        color:#000;">
 
             <tr>
                 <td style="background-color:#c8b7d9; white-space:nowrap;"><strong>Overview</strong></td>
@@ -117,12 +118,12 @@ end`},ga=function(){return`<`+[...arguments].join(``)+`>`},_a=function(e){return
 
             <tr>
                 <td style="white-space:nowrap;">Powerco's PM:</td>
-                <td>${i}</td>
+                <td style="color:#000;">${i}</td>
             </tr>
 
             <tr>
                 <td style="white-space:nowrap;">WO:</td>
-                <td>${a}</td>
+                <td style="color:#000;">${a}</td>
             </tr>
 
             <tr>
@@ -132,12 +133,12 @@ end`},ga=function(){return`<`+[...arguments].join(``)+`>`},_a=function(e){return
 
             <tr>
                 <td style= " white-space:nowrap;">Site</td>
-                <td>${o}</td>
+                <td style="color:#000;">${o}</td>
             </tr>
 
             <tr>
                 <td style="vertical-align:top; white-space:nowrap;">Scope of Services:</td>
-                <td>${s}</td>
+                <td style="color:#000;">${s}</td>
             </tr>
 
         </table>
@@ -195,7 +196,7 @@ end`},ga=function(){return`<`+[...arguments].join(``)+`>`},_a=function(e){return
 
             <tr>
                 <td>NAPA:</td>
-                <td>J.A RUSSELL:</td>
+                <td>J A RUSSELL:</td>
             </tr>
 
             <tr>
