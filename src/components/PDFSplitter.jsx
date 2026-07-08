@@ -100,7 +100,7 @@ function PdfSplitter() {
                 continue;
             }
 
-            filename = sanitizeFilename(`Document ${chunkNumber}`) || `Document ${chunkNumber}`;
+            filename = sanitizeFilename(`000XXXXX - Document ${chunkNumber} - As Builts`) || `000XXXXX - Document ${chunkNumber} - As Builts`;
 
             if (useDirectorySave) {
                 try {
