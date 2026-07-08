@@ -189,40 +189,47 @@ function PdfSplitter() {
             });
         }
 
-        // helper: embed image file into mergedPdf as a new page
+        // A4 page size in points (72pt/inch)
+        const A4_WIDTH = 595.28;
+        const A4_HEIGHT = 841.89;
+
+        function fitToA4(width, height) {
+            const widthScale = A4_WIDTH / width;
+            const heightScale = A4_HEIGHT / height;
+            const scale = Math.min(widthScale, heightScale, 1);
+            return { width: width * scale, height: height * scale };
+        }
+
+        // helper: embed image file into mergedPdf as a new A4-sized page
         async function embedImageFile(file) {
             const lower = (file.type || file.name || '').toLowerCase();
 
             try {
+                let img;
+                let dims;
+
                 if (file.type === 'image/jpeg' || /\.jpe?g$/.test(file.name.toLowerCase())) {
                     const bytes = await file.arrayBuffer();
-                    const img = await mergedPdf.embedJpg(bytes);
-                    const { width, height } = img.scale(1);
-                    const page = mergedPdf.addPage([width, height]);
-                    page.drawImage(img, { x: 0, y: 0, width, height });
-                    return;
+                    img = await mergedPdf.embedJpg(bytes);
                 }
-
-                if (file.type === 'image/png' || /\.png$/.test(file.name.toLowerCase())) {
+                else if (file.type === 'image/png' || /\.png$/.test(file.name.toLowerCase())) {
                     const bytes = await file.arrayBuffer();
-                    const img = await mergedPdf.embedPng(bytes);
-                    const { width, height } = img.scale(1);
-                    const page = mergedPdf.addPage([width, height]);
-                    page.drawImage(img, { x: 0, y: 0, width, height });
-                    return;
+                    img = await mergedPdf.embedPng(bytes);
                 }
-
-                // fallback: convert other image types (gif, webp, etc) to PNG bytes
-                if ((file.type && file.type.startsWith('image/')) || /\.(gif|webp|bmp)$/i.test(file.name)) {
+                else if ((file.type && file.type.startsWith('image/')) || /\.(gif|webp|bmp)$/i.test(file.name)) {
                     const pngBytes = await imageFileToPngBytes(file);
-                    const img = await mergedPdf.embedPng(pngBytes);
-                    const { width, height } = img.scale(1);
-                    const page = mergedPdf.addPage([width, height]);
-                    page.drawImage(img, { x: 0, y: 0, width, height });
-                    return;
+                    img = await mergedPdf.embedPng(pngBytes);
+                }
+                else {
+                    throw new Error('Unsupported image type');
                 }
 
-                throw new Error('Unsupported image type');
+                dims = img.scale(1);
+                const fitted = fitToA4(dims.width, dims.height);
+                const page = mergedPdf.addPage([A4_WIDTH, A4_HEIGHT]);
+                const x = (A4_WIDTH - fitted.width) / 2;
+                const y = (A4_HEIGHT - fitted.height) / 2;
+                page.drawImage(img, { x, y, width: fitted.width, height: fitted.height });
             }
             catch (err) {
                 throw err;
