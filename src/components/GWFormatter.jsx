@@ -113,49 +113,38 @@ function GWFormatter() {
         const finalHtml = `
 
         <table border="0"
-        style="
+        style="width:100%;
         border-collapse:collapse;
-        width:100%;
-        table-layout:fixed;
         font-family:Arial,sans-serif;
         font-size:11pt;">
 
             <tr>
-                <td style="background-color:#c8b7d9; width:${labelColWidthPx}px; white-space:nowrap;">
-                    <strong>Overview</strong>
-                </td>
-
+                <td style="background-color:#c8b7d9; white-space:nowrap;"><strong>Overview</strong></td>
                 <td></td>
             </tr>
 
             <tr>
-                <td style="width:${labelColWidthPx}px; white-space:nowrap;"><strong>Powerco's PM:</strong></td>
+                <td style="white-space:nowrap;">Powerco's PM:</td>
                 <td>${pm}</td>
             </tr>
 
             <tr>
-                <td style="width:${labelColWidthPx}px; white-space:nowrap;"><strong>WO:</strong></td>
+                <td style="white-space:nowrap;">WO:</td>
                 <td>${wo}</td>
             </tr>
 
             <tr>
-                <td style="background-color:#c8b7d9; width:${labelColWidthPx}px; white-space:nowrap;">
-                    <strong>Specifications</strong>
-                </td>
-
+                <td style="background-color:#c8b7d9; white-space:nowrap;"><strong>Specifications</strong></td>
                 <td></td>
             </tr>
 
             <tr>
-                <td style="width:${labelColWidthPx}px; white-space:nowrap;"><strong>Site</strong></td>
+                <td style= " white-space:nowrap;">Site</td>
                 <td>${site}</td>
             </tr>
 
             <tr>
-                <td style="vertical-align:top; width:${labelColWidthPx}px; white-space:nowrap;">
-                    <strong>Scope of Services:</strong>
-                </td>
-
+                <td style="vertical-align:top; white-space:nowrap;">Scope of Services:</td>
                 <td>${scopeHtml}</td>
             </tr>
 
