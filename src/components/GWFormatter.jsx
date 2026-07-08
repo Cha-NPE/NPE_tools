@@ -21,7 +21,7 @@ function GWFormatter() {
         let site = "";
         let scopeHtml = "";
         const detailLabels = ["Powerco's PM:", "WO:", "Site", "Scope of Services:"];
-        const labelColWidthPx = Math.max(150, Math.max(...detailLabels.map(label => label.length)) * 7 + 18);
+        const labelColWidthPx = Math.max(180, Math.max(...detailLabels.map(label => label.length)) * 7 + 18);
 
         rows.forEach(row => {
             const cells = [...row.cells];
@@ -35,9 +35,12 @@ function GWFormatter() {
             if (label.includes("Work Order Number"))
                 wo = value;
 
-            if (label.includes("Site")) {
+            if (label === "Site") {
                 const divs = [...cells[1].querySelectorAll("div")];
-                site = divs.slice(1).map(div => div.innerHTML).join("<br>");
+                const siteCellHtml = divs.length > 0
+                    ? divs.map(div => div.innerHTML.trim()).filter(Boolean).join("<br>")
+                    : cells[1].innerHTML.trim();
+                site = siteCellHtml;
             }
 
             if (label.includes("Scope of Services")) {scopeHtml = "";}
