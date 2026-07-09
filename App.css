@@ -1,47 +1,107 @@
+/* Reset */
+* {
+    box-sizing: border-box;
+}
+
 .layout {
     display: flex;
     height: 100vh;
+    background: #f5f7fa;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
+
+/* Sidebar */
 
 .sidebar {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-    transition: width 0.3s ease;
+    gap: 12px;
+    padding: 16px;
+
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+
+    transition: width 0.25s ease;
     overflow: hidden;
+    white-space: nowrap;
 }
 
 .sidebar.open {
-    width: 220px;
+    width: 240px;
 }
 
 .sidebar.closed {
-    width: 60px; /* wide enough for menu button */
+    width: 72px;
 }
+
+/* Buttons */
+
+.sidebar button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    width: 100%;
+    min-height: 44px;
+
+    padding: 10px 14px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: transparent;
+    color: #374151;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sidebar button:hover {
+    background: #eef2ff;
+    color: #2563eb;
+}
+
+.sidebar button:active {
+    transform: scale(0.98);
+}
+
+/* Closed sidebar buttons */
 
 .sidebar.closed button {
     width: 40px;
     height: 40px;
     padding: 0;
-    display: flex;
     justify-content: center;
     align-items: center;
 }
+
+/* Toggle button */
 
 .toggle-btn {
     width: 40px;
     height: 40px;
 
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 
-    font-size: 24px;
+    margin-bottom: 8px;
+
+    border-radius: 10px;
+
+    font-size: 22px;
     line-height: 1;
-    padding: 0;
 }
+
+/* Content */
+
 .content {
     flex: 1;
-    padding: 20px;
+    padding: 30px;
+    overflow-y: auto;
+    background: #f8fafc;
 }
