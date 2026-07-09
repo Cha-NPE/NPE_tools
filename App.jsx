@@ -52,7 +52,7 @@ function App() {
                     
                     <button onClick={() => setSelectedTool("pdf")}>
                         {sidebarOpen ? "PDF Splitter" : "PDF"}
-                    </button>
+                    </button>  
                     </>
                 )}
             </aside>

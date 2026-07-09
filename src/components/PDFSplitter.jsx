@@ -1,9 +1,12 @@
-﻿import { useRef } from "react";
+﻿import { useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
 
 function PdfSplitter() {
     const splitInputRef = useRef(null);
     const combineInputRef = useRef(null);
+    const [combineDropFiles, setCombineDropFiles] = useState([]);
+    const [isDragActive, setIsDragActive] = useState(false);
+    const [activeTab, setActiveTab] = useState('split');
 
     function sanitizeFilename(name) {
         if (!name) return null;
@@ -146,11 +149,39 @@ function PdfSplitter() {
         alert(`Finished. ${successCount} files saved, ${failureCount} failures.`);
     }
 
+    function handleCombineDragOver(event) {
+        event.preventDefault();
+        setIsDragActive(true);
+    }
+
+    function handleCombineDragLeave(event) {
+        event.preventDefault();
+        setIsDragActive(false);
+    }
+
+    function handleCombineDrop(event) {
+        event.preventDefault();
+        setIsDragActive(false);
+
+        const droppedFiles = Array.from(event.dataTransfer.files || []);
+        if (droppedFiles.length > 0) {
+            setCombineDropFiles((currentFiles) => [...currentFiles, ...droppedFiles]);
+            if (combineInputRef.current) {
+                combineInputRef.current.value = null;
+            }
+        }
+    }
+
+    function clearCombineDropFiles() {
+        setCombineDropFiles([]);
+    }
+
     async function combinePdfs() {
-        const files = combineInputRef.current.files;
+        const selectedFiles = combineInputRef.current?.files ? Array.from(combineInputRef.current.files) : [];
+        const files = combineDropFiles.length > 0 ? combineDropFiles : selectedFiles;
 
         if (!files || files.length === 0) {
-            alert("Select PDF files to combine first.");
+            alert("Select PDF/image files to combine first.");
             return;
         }
 
@@ -189,21 +220,8 @@ function PdfSplitter() {
             });
         }
 
-        // A4 page size in points (72pt/inch)
-        const A4_WIDTH = 595.28;
-        const A4_HEIGHT = 841.89;
-
-        function fitToA4(width, height) {
-            const widthScale = A4_WIDTH / width;
-            const heightScale = A4_HEIGHT / height;
-            const scale = Math.min(widthScale, heightScale, 1);
-            return { width: width * scale, height: height * scale };
-        }
-
-        // helper: embed image file into mergedPdf as a new A4-sized page
+        // helper: embed image file into mergedPdf using the image's original dimensions
         async function embedImageFile(file) {
-            const lower = (file.type || file.name || '').toLowerCase();
-
             try {
                 let img;
                 let dims;
@@ -225,11 +243,8 @@ function PdfSplitter() {
                 }
 
                 dims = img.scale(1);
-                const fitted = fitToA4(dims.width, dims.height);
-                const page = mergedPdf.addPage([A4_WIDTH, A4_HEIGHT]);
-                const x = (A4_WIDTH - fitted.width) / 2;
-                const y = (A4_HEIGHT - fitted.height) / 2;
-                page.drawImage(img, { x, y, width: fitted.width, height: fitted.height });
+                const page = mergedPdf.addPage([dims.width, dims.height]);
+                page.drawImage(img, { x: 0, y: 0, width: dims.width, height: dims.height });
             }
             catch (err) {
                 throw err;
@@ -294,21 +309,133 @@ function PdfSplitter() {
         <>
             <h2>PDF Tools</h2>
 
-            <section style={{ marginBottom: "20px" }}>
-                <h3>Split a PDF</h3>
-                <input type="file" accept=".pdf" ref={splitInputRef} />
-                <br />
-                <br />
-                <button onClick={splitPdf}>Split PDF</button>
-            </section>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                <button
+                    type="button"
+                    onClick={() => setActiveTab('split')}
+                    style={{
+                        padding: '8px 16px',
+                        border: '1px solid #ccc',
+                        borderRadius: '6px',
+                        background: activeTab === 'split' ? '#007acc' : '#fff',
+                        color: activeTab === 'split' ? '#fff' : '#000',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Split PDF
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setActiveTab('combine')}
+                    style={{
+                        padding: '8px 16px',
+                        border: '1px solid #ccc',
+                        borderRadius: '6px',
+                        background: activeTab === 'combine' ? '#007acc' : '#fff',
+                        color: activeTab === 'combine' ? '#fff' : '#000',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Combine PDFs / Images
+                </button>
+            </div>
 
-            <section>
-                <h3>Combine PDFs / Images</h3>
-                <input type="file" accept=".pdf,image/*" ref={combineInputRef} multiple />
-                <br />
-                <br />
-                <button onClick={combinePdfs}>Combine Files</button>
-            </section>
+            {activeTab === 'split' && (
+                <section style={{ marginBottom: '20px' }}>
+                    <h3>Split a PDF</h3>
+                    <input type="file" accept=".pdf" ref={splitInputRef} />
+                    <br />
+                    <br />
+                    <button onClick={splitPdf}>Split PDF</button>
+                </section>
+            )}
+
+            {activeTab === 'combine' && (
+                <section>
+                    <h3>Combine PDFs / Images</h3>
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                        <div
+                            onClick={() => combineInputRef.current?.click()}
+                            onDragOver={handleCombineDragOver}
+                            onDragLeave={handleCombineDragLeave}
+                            onDrop={handleCombineDrop}
+                            style={{
+                                flex: '1 1 320px',
+                                minWidth: '280px',
+                                border: isDragActive ? '2px dashed #007acc' : '2px dashed #999',
+                                borderRadius: '8px',
+                                padding: '20px',
+                                textAlign: 'center',
+                                background: isDragActive ? '#eef7ff' : '#fafafa',
+                                cursor: 'pointer',
+                                userSelect: 'none'
+                            }}
+                        >
+                            <p style={{ margin: 0 }}><strong>Drag files here</strong></p>
+                            <p style={{ margin: '6px 0 0' }}>or click this area to select image files</p>
+                        </div>
+
+                        <div style={{
+                            flex: '0 0 320px',
+                            minWidth: '220px',
+                            height: '280px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            border: '1px solid #ccc',
+                            borderRadius: '8px',
+                            background: '#fff',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{
+                                flex: '1 1 auto',
+                                overflowY: 'auto',
+                                padding: '12px'
+                            }}>
+                                <strong>Selected files</strong>
+                                {combineDropFiles.length > 0 ? (
+                                    <ul style={{ paddingLeft: '20px', marginTop: '8px' }}>
+                                        {combineDropFiles.map((file, index) => (
+                                            <li key={index}>{file.name}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p style={{ marginTop: '8px', color: '#666' }}>No files added yet.</p>
+                                )}
+                            </div>
+                            <div style={{ padding: '12px', borderTop: '1px solid #eee', background: '#fafafa' }}>
+                                <button
+                                    type="button"
+                                    onClick={clearCombineDropFiles}
+                                    style={{ width: '100%', marginBottom: '8px' }}
+                                >
+                                    Clear files
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={combinePdfs}
+                                    style={{ width: '100%' }}
+                                >
+                                    Combine Files
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input
+                        type="file"
+                        accept=".pdf,image/*"
+                        ref={combineInputRef}
+                        multiple
+                        style={{ display: 'none' }}
+                        onChange={(event) => {
+                            const files = Array.from(event.target.files || []);
+                            if (files.length > 0) {
+                                setCombineDropFiles((current) => [...current, ...files]);
+                            }
+                        }}
+                    />
+                </section>
+            )}
         </>
     );
 }
