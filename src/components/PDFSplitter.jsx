@@ -373,6 +373,26 @@ function PdfSplitter() {
                             <p style={{ margin: '6px 0 0' }}>or click this area to select image files</p>
                         </div>
 
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', width: '100%', minWidth: '220px' }}>
+                            <button
+                                type="button"
+                                onClick={combinePdfs}
+                                style={{
+                                    padding: '14px 26px',
+                                    fontSize: '16px',
+                                    borderRadius: '10px',
+                                    minWidth: '220px',
+                                    background: 'linear-gradient(90deg,#2563eb,#4f46e5)',
+                                    color: '#fff',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 8px 18px rgba(37,99,235,0.12)'
+                                }}
+                            >
+                                Combine Files
+                            </button>
+                        </div>
+
                         <div style={{
                             flex: '0 0 320px',
                             minWidth: '220px',
@@ -404,16 +424,9 @@ function PdfSplitter() {
                                 <button
                                     type="button"
                                     onClick={clearCombineDropFiles}
-                                    style={{ width: '100%', marginBottom: '8px' }}
-                                >
-                                    Clear files
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={combinePdfs}
                                     style={{ width: '100%' }}
                                 >
-                                    Combine Files
+                                    Clear files
                                 </button>
                             </div>
                         </div>
