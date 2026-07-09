@@ -309,40 +309,39 @@ function PdfSplitter() {
         <>
             <h2>PDF Tools</h2>
 
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-                <button
-                    type="button"
-                    onClick={() => setActiveTab('split')}
-                    style={{
-                        padding: '8px 16px',
-                        border: '1px solid #ccc',
-                        borderRadius: '6px',
-                        background: activeTab === 'split' ? '#007acc' : '#fff',
-                        color: activeTab === 'split' ? '#fff' : '#000',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Split PDF
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setActiveTab('combine')}
-                    style={{
-                        padding: '8px 16px',
-                        border: '1px solid #ccc',
-                        borderRadius: '6px',
-                        background: activeTab === 'combine' ? '#007acc' : '#fff',
-                        color: activeTab === 'combine' ? '#fff' : '#000',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Combine PDFs / Images
-                </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                <span style={{ fontWeight: activeTab === 'split' ? 700 : 400 }}>Split</span>
+                <label style={{ position: 'relative', display: 'inline-block', width: '72px', height: '32px' }}>
+                    <input
+                        type="checkbox"
+                        checked={activeTab === 'combine'}
+                        onChange={(event) => setActiveTab(event.target.checked ? 'combine' : 'split')}
+                        style={{ opacity: 0, width: 0, height: 0 }}
+                    />
+                    <span style={{
+                        position: 'absolute',
+                        cursor: 'pointer',
+                        inset: 0,
+                        backgroundColor: activeTab === 'combine' ? '#007acc' : '#ccc',
+                        borderRadius: '999px',
+                        transition: 'background-color 0.2s ease'
+                    }} />
+                    <span style={{
+                        position: 'absolute',
+                        top: '4px',
+                        left: activeTab === 'combine' ? '40px' : '4px',
+                        width: '24px',
+                        height: '24px',
+                        background: '#fff',
+                        borderRadius: '50%',
+                        transition: 'left 0.2s ease'
+                    }} />
+                </label>
+                <span style={{ fontWeight: activeTab === 'combine' ? 700 : 400 }}>Combine</span>
             </div>
 
             {activeTab === 'split' && (
                 <section style={{ marginBottom: '20px' }}>
-                    <h3>Split a PDF</h3>
                     <input type="file" accept=".pdf" ref={splitInputRef} />
                     <br />
                     <br />
@@ -352,7 +351,6 @@ function PdfSplitter() {
 
             {activeTab === 'combine' && (
                 <section>
-                    <h3>Combine PDFs / Images</h3>
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         <div
                             onClick={() => combineInputRef.current?.click()}
