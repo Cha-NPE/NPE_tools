@@ -140,6 +140,8 @@ function DGFormatter() {
             <div className="centered-buttons-div">
                 <button onClick={copyOutput}>Copy Output</button>
             </div>
+            
+            <div><hr></hr></div>
 
             <div className="output">
                 {output.request && (

@@ -210,6 +210,9 @@ function GWFormatter() {
                     Clear input boxes after copy
                 </label>
             </div>
+
+            <div><hr></hr></div>
+
             <div className="output" dangerouslySetInnerHTML={{__html: outputHtml}}/>
         </>
     );
