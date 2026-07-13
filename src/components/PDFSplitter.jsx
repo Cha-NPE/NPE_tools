@@ -323,82 +323,120 @@ function PdfSplitter() {
 
             {activeTab === 'combine' && (
                 <section>
-                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            gap: "20px",
+                            alignItems: "stretch",
+                        }}
+                    >
+                        {/* LEFT SIDE */}
                         <div
-                            onClick={() => combineInputRef.current?.click()}
-                            onDragOver={handleCombineDragOver}
-                            onDragLeave={handleCombineDragLeave}
-                            onDrop={handleCombineDrop}
                             style={{
-                                flex: '1 1 320px',
-                                minWidth: '280px',
-                                border: isDragActive ? '2px dashed #007acc' : '2px dashed #999',
-                                borderRadius: '8px',
-                                padding: '20px',
-                                textAlign: 'center',
-                                background: isDragActive ? '#eef7ff' : '#fafafa',
-                                cursor: 'pointer',
-                                userSelect: 'none'
+                                flex: "0 0 85%",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "20px",
                             }}
                         >
-                            <p style={{ margin: 0 }}><strong>Drag files here</strong></p>
-                            <p style={{ margin: '6px 0 0' }}>or click this area to select image files</p>
-                        </div>
+                            <div
+                                onClick={() => combineInputRef.current?.click()}
+                                onDragOver={handleCombineDragOver}
+                                onDragLeave={handleCombineDragLeave}
+                                onDrop={handleCombineDrop}
+                                style={{
+                                    border: isDragActive
+                                        ? "2px dashed #007acc"
+                                        : "2px dashed #999",
+                                    borderRadius: "8px",
+                                    padding: "40px",
+                                    textAlign: "center",
+                                    background: isDragActive ? "#eef7ff" : "#fafafa",
+                                    cursor: "pointer",
+                                    minHeight: "220px",
 
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', width: '100%', minWidth: '220px' }}>
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <p style={{ margin: 0 }}>
+                                    <strong>Drag files here</strong>
+                                </p>
+
+                                <p style={{ marginTop: "8px" }}>
+                                    or click this area to select PDF/image files
+                                </p>
+                            </div>
+
                             <button
                                 type="button"
                                 onClick={combinePdfs}
                                 style={{
-                                    padding: '14px 26px',
-                                    fontSize: '16px',
-                                    borderRadius: '10px',
-                                    minWidth: '220px',
-                                    background: 'linear-gradient(90deg,#2563eb,#4f46e5)',
-                                    color: '#fff',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    boxShadow: '0 8px 18px rgba(37,99,235,0.12)'
+                                    alignSelf: "center",
+                                    padding: "14px 32px",
+                                    fontSize: "16px",
+                                    borderRadius: "10px",
+                                    minWidth: "220px",
+                                    background:
+                                        "linear-gradient(90deg,#2563eb,#4f46e5)",
+                                    color: "#fff",
+                                    border: "none",
+                                    cursor: "pointer",
                                 }}
                             >
                                 Combine Files
                             </button>
                         </div>
 
-                        <div style={{
-                            flex: '0 0 320px',
-                            minWidth: '220px',
-                            height: '280px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            border: '1px solid #ccc',
-                            borderRadius: '8px',
-                            background: '#fff',
-                            overflow: 'hidden'
-                        }}>
-                            <div style={{
-                                flex: '1 1 auto',
-                                overflowY: 'auto',
-                                padding: '12px'
-                            }}>
+                        {/* RIGHT SIDE */}
+                        <div
+                            style={{
+                                flex: "0 0 15%",
+                                display: "flex",
+                                flexDirection: "column",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                background: "#fff",
+                                minHeight: "320px",
+                                overflow: "hidden",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    flex: 1,
+                                    overflowY: "auto",
+                                    padding: "12px",
+                                }}
+                            >
                                 <strong>Selected files</strong>
+
                                 {combineDropFiles.length > 0 ? (
-                                    <ul style={{ paddingLeft: '20px', marginTop: '8px' }}>
+                                    <ul style={{ paddingLeft: "20px", marginTop: "8px" }}>
                                         {combineDropFiles.map((file, index) => (
                                             <li key={index}>{file.name}</li>
                                         ))}
                                     </ul>
                                 ) : (
-                                    <p style={{ marginTop: '8px', color: '#666' }}>No files added yet.</p>
+                                    <p style={{ marginTop: "8px", color: "#666" }}>
+                                        No files added yet.
+                                    </p>
                                 )}
                             </div>
-                            <div style={{ padding: '12px', borderTop: '1px solid #eee', background: '#fafafa' }}>
+
+                            <div
+                                style={{
+                                    padding: "12px",
+                                    borderTop: "1px solid #eee",
+                                    background: "#fafafa",
+                                }}
+                            >
                                 <button
                                     type="button"
                                     onClick={clearCombineDropFiles}
-                                    style={{ width: '100%' }}
+                                    style={{ width: "100%" }}
                                 >
-                                    Clear files
+                                    Clear Files
                                 </button>
                             </div>
                         </div>
@@ -409,7 +447,7 @@ function PdfSplitter() {
                         accept=".pdf,image/*"
                         ref={combineInputRef}
                         multiple
-                        style={{ display: 'none' }}
+                        style={{ display: "none" }}
                         onChange={(event) => {
                             const files = Array.from(event.target.files || []);
                             if (files.length > 0) {
