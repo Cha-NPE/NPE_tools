@@ -317,7 +317,7 @@ function NRFormatter() {
                 <button onClick={copyOutput}>Copy Output</button>
             </div>
             <div className="centered-buttons-div">
-                <label style={{ marginRight: "12px" }}>
+                <label style={{ marginTop: "12px", marginBottom: "12px" }}>
                     <input
                         type="checkbox"
                         checked={clearInputsOnCopy}
@@ -326,8 +326,6 @@ function NRFormatter() {
                     Clear input boxes after copy
                 </label>
             </div>
-            
-            <div><hr></hr></div>
 
             <div className="output" dangerouslySetInnerHTML={{__html:outputHtml}}/>
         </>

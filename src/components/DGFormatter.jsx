@@ -138,10 +138,10 @@ function DGFormatter() {
             />
 
             <div className="centered-buttons-div">
-                <button onClick={copyOutput}>Copy Output</button>
+                <button onClick={copyOutput} style={{ marginBottom: "12px" }}>
+                    Copy Output
+                </button>
             </div>
-            
-            <div><hr></hr></div>
 
             <div className="output">
                 {output.request && (
