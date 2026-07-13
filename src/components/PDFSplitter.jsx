@@ -187,68 +187,40 @@ function PdfSplitter() {
 
         const mergedPdf = await PDFDocument.create();
 
-        // helper: convert arbitrary image file (gif/webp/etc) to PNG bytes via canvas
-        async function imageFileToPngBytes(file) {
-            return await new Promise((resolve, reject) => {
-                const url = URL.createObjectURL(file);
-                const img = new Image();
-                img.onload = async () => {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.naturalWidth || img.width;
-                        canvas.height = img.naturalHeight || img.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        canvas.toBlob((blob) => {
-                            if (!blob) return reject(new Error('Canvas toBlob failed'));
-                            blob.arrayBuffer().then((ab) => {
-                                resolve(new Uint8Array(ab));
-                                URL.revokeObjectURL(url);
-                            }).catch(reject);
-                        }, 'image/png');
-                    }
-                    catch (e) {
-                        URL.revokeObjectURL(url);
-                        reject(e);
-                    }
-                };
-                img.onerror = (e) => {
-                    URL.revokeObjectURL(url);
-                    reject(new Error('Image load failed'));
-                };
-                img.src = url;
-            });
-        }
-
-        // helper: embed image file into mergedPdf using the image's original dimensions
+        // helper: embed image into the PDF without changing its resolution
         async function embedImageFile(file) {
-            try {
-                let img;
-                let dims;
+            let img;
 
-                if (file.type === 'image/jpeg' || /\.jpe?g$/.test(file.name.toLowerCase())) {
-                    const bytes = await file.arrayBuffer();
-                    img = await mergedPdf.embedJpg(bytes);
-                }
-                else if (file.type === 'image/png' || /\.png$/.test(file.name.toLowerCase())) {
-                    const bytes = await file.arrayBuffer();
-                    img = await mergedPdf.embedPng(bytes);
-                }
-                else if ((file.type && file.type.startsWith('image/')) || /\.(gif|webp|bmp)$/i.test(file.name)) {
-                    const pngBytes = await imageFileToPngBytes(file);
-                    img = await mergedPdf.embedPng(pngBytes);
-                }
-                else {
-                    throw new Error('Unsupported image type');
-                }
+            // Embed the original image bytes directly (no canvas conversion)
+            if (
+                file.type === "image/jpeg" ||
+                /\.jpe?g$/i.test(file.name)
+            ) {
+                img = await mergedPdf.embedJpg(await file.arrayBuffer());
+            }
+            else if (
+                file.type === "image/png" ||
+                /\.png$/i.test(file.name)
+            ) {
+                img = await mergedPdf.embedPng(await file.arrayBuffer());
+            }
+            else {
+                throw new Error(
+                    `Unsupported image format: ${file.name}\n\n` +
+                    "Only PNG and JPEG images can be combined without quality loss."
+                );
+            }
 
-                dims = img.scale(1);
-                const page = mergedPdf.addPage([dims.width, dims.height]);
-                page.drawImage(img, { x: 0, y: 0, width: dims.width, height: dims.height });
-            }
-            catch (err) {
-                throw err;
-            }
+            // Create a page exactly the same size as the image
+            const page = mergedPdf.addPage([img.width, img.height]);
+
+            // Draw the image at its original size
+            page.drawImage(img, {
+                x: 0,
+                y: 0,
+                width: img.width,
+                height: img.height,
+            });
         }
 
         // prompt once for a save directory and reuse it

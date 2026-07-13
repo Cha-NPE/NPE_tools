@@ -25,10 +25,12 @@
     transition: width 0.25s ease;
     overflow: hidden;
     white-space: nowrap;
+    position: relative;
 }
 
 .sidebar.open {
     width: 240px;
+    padding-right: 56px;
 }
 
 .sidebar.closed {
@@ -128,12 +130,27 @@
     justify-content: center;
     align-items: center;
 
-    margin-bottom: 8px;
+    margin: 0;
 
     border-radius: 10px;
 
     font-size: 22px;
     line-height: 1;
+}
+
+/* When sidebar is open, push the toggle to the right edge */
+.sidebar.open .toggle-btn {
+    position: absolute;
+    top: 18px;
+    right: 12px;
+    margin-left: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
 }
 
 /* Content */

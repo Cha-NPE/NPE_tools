@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { FaBars } from "react-icons/fa";
 
 import DGFormatter from "./src/components/DGFormatter";
 import PdfSplitter from "./src/components/PdfSplitter";
@@ -33,8 +32,10 @@ function App() {
                 <button
                     className="toggle-btn"
                     onClick={() => setSidebarOpen(!sidebarOpen)}
+                    title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                    aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
                 >
-                    <FaBars />
+                    {sidebarOpen ? '<' : '>'}
                 </button>
                 {sidebarOpen && (
                     <>
