@@ -223,7 +223,7 @@ Please create an issue at https://github.com/MikeKovarik/exifr with this file`),
         <div>Transformer Site ID ${D}</div>
         <div>Site address: ${b}</div>
         <div>${c(`Additional Details`,S)}</div>
-        <div>High level job scope ${O}</div>
+        <div>High level job scope: ${O}</div>
         <br>
         <div>ELECTRICIAN DETAILS</strong></div>
         `:`
