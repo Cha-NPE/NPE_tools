@@ -210,7 +210,7 @@ function NRFormatter() {
         <div>Transformer Site ID ${transformerSite}</div>
         <div>Site address: ${siteAddress}</div>
         <div>${addLine("Additional Details", additionalDetails)}</div>
-        <div>High level job scope ${jobScope}</div>
+        <div>High level job scope: ${jobScope}</div>
         <br>
         <div>ELECTRICIAN DETAILS</strong></div>
         ` : `

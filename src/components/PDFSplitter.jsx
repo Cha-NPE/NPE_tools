@@ -1,5 +1,6 @@
 ﻿import { useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import * as exifr from "exifr";
 
 function PdfSplitter() {
     const splitInputRef = useRef(null);
@@ -187,11 +188,12 @@ function PdfSplitter() {
 
         const mergedPdf = await PDFDocument.create();
 
-        // helper: embed image into the PDF without changing its resolution
         async function embedImageFile(file) {
-            let img;
+            let img;    
 
-            // Embed the original image bytes directly (no canvas conversion)
+            // Read EXIF orientation (defaults to 1 if none exists)
+            const orientation = (await exifr.orientation(file).catch(() => 1)) || 1;
+
             if (
                 file.type === "image/jpeg" ||
                 /\.jpe?g$/i.test(file.name)
@@ -211,18 +213,51 @@ function PdfSplitter() {
                 );
             }
 
-            // Create a page exactly the same size as the image
-            const page = mergedPdf.addPage([img.width, img.height]);
+            const rotate90 = orientation === 6 || orientation === 8;
+            const pageWidth = rotate90 ? img.height : img.width;
+            const pageHeight = rotate90 ? img.width : img.height;
 
-            // Draw the image at its original size
-            page.drawImage(img, {
-                x: 0,
-                y: 0,
-                width: img.width,
-                height: img.height,
-            });
+            const page = mergedPdf.addPage([pageWidth, pageHeight]);
+
+            switch (orientation) {
+                case 3: // 180°
+                    page.drawImage(img, {
+                        x: img.width,
+                        y: img.height,
+                        width: -img.width,
+                        height: -img.height,
+                    });
+                    break;
+
+                case 6: // 90° clockwise
+                    page.drawImage(img, {
+                        x: pageWidth,
+                        y: 0,
+                        width: -img.height,
+                        height: img.width,
+                        rotate: { angle: Math.PI / 2 },
+                    });
+                    break;
+
+                case 8: // 90° counter-clockwise
+                    page.drawImage(img, {
+                        x: 0,
+                        y: pageHeight,
+                        width: img.height,
+                        height: -img.width,
+                        rotate: { angle: -Math.PI / 2 },
+                    });
+                    break;
+
+                default:
+                    page.drawImage(img, {
+                        x: 0,
+                        y: 0,
+                        width: img.width,
+                        height: img.height,
+                    });
+            }
         }
-
         // prompt once for a save directory and reuse it
         let folderHandle = null;
         try {
