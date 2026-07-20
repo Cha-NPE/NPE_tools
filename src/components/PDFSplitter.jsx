@@ -1,6 +1,5 @@
 ﻿import { useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
-import * as exifr from "exifr";
 
 function PdfSplitter() {
     const splitInputRef = useRef(null);
@@ -188,76 +187,69 @@ function PdfSplitter() {
 
         const mergedPdf = await PDFDocument.create();
 
+        // helper: convert arbitrary image file (gif/webp/etc) to PNG bytes via canvas
+        async function imageFileToPngBytes(file) {
+            return await new Promise((resolve, reject) => {
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = async () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.naturalWidth || img.width;
+                        canvas.height = img.naturalHeight || img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        canvas.toBlob((blob) => {
+                            if (!blob) return reject(new Error('Canvas toBlob failed'));
+                            blob.arrayBuffer().then((ab) => {
+                                resolve(new Uint8Array(ab));
+                                URL.revokeObjectURL(url);
+                            }).catch(reject);
+                        }, 'image/png');
+                    }
+                    catch (e) {
+                        URL.revokeObjectURL(url);
+                        reject(e);
+                    }
+                };
+                img.onerror = (e) => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Image load failed'));
+                };
+                img.src = url;
+            });
+        }
+
+        // helper: embed image file into mergedPdf using its native format and embedded dimensions
         async function embedImageFile(file) {
-            let img;    
+            try {
+                let img;
 
-            // Read EXIF orientation (defaults to 1 if none exists)
-            const orientation = (await exifr.orientation(file).catch(() => 1)) || 1;
+                if (file.type === 'image/jpeg' || /\.jpe?g$/.test(file.name.toLowerCase())) {
+                    const bytes = await file.arrayBuffer();
+                    img = await mergedPdf.embedJpg(bytes);
+                }
+                else if (file.type === 'image/png' || /\.png$/.test(file.name.toLowerCase())) {
+                    const bytes = await file.arrayBuffer();
+                    img = await mergedPdf.embedPng(bytes);
+                }
+                else if ((file.type && file.type.startsWith('image/')) || /\.(gif|webp|bmp)$/i.test(file.name)) {
+                    const pngBytes = await imageFileToPngBytes(file);
+                    img = await mergedPdf.embedPng(pngBytes);
+                }
+                else {
+                    throw new Error('Unsupported image type');
+                }
 
-            if (
-                file.type === "image/jpeg" ||
-                /\.jpe?g$/i.test(file.name)
-            ) {
-                img = await mergedPdf.embedJpg(await file.arrayBuffer());
+                const dimensions = img.scale(1);
+                const page = mergedPdf.addPage([dimensions.width, dimensions.height]);
+                page.drawImage(img, { x: 0, y: 0, width: dimensions.width, height: dimensions.height });
             }
-            else if (
-                file.type === "image/png" ||
-                /\.png$/i.test(file.name)
-            ) {
-                img = await mergedPdf.embedPng(await file.arrayBuffer());
-            }
-            else {
-                throw new Error(
-                    `Unsupported image format: ${file.name}\n\n` +
-                    "Only PNG and JPEG images can be combined without quality loss."
-                );
-            }
-
-            const rotate90 = orientation === 6 || orientation === 8;
-            const pageWidth = rotate90 ? img.height : img.width;
-            const pageHeight = rotate90 ? img.width : img.height;
-
-            const page = mergedPdf.addPage([pageWidth, pageHeight]);
-
-            switch (orientation) {
-                case 3: // 180°
-                    page.drawImage(img, {
-                        x: img.width,
-                        y: img.height,
-                        width: -img.width,
-                        height: -img.height,
-                    });
-                    break;
-
-                case 6: // 90° clockwise
-                    page.drawImage(img, {
-                        x: pageWidth,
-                        y: 0,
-                        width: -img.height,
-                        height: img.width,
-                        rotate: { angle: Math.PI / 2 },
-                    });
-                    break;
-
-                case 8: // 90° counter-clockwise
-                    page.drawImage(img, {
-                        x: 0,
-                        y: pageHeight,
-                        width: img.height,
-                        height: -img.width,
-                        rotate: { angle: -Math.PI / 2 },
-                    });
-                    break;
-
-                default:
-                    page.drawImage(img, {
-                        x: 0,
-                        y: 0,
-                        width: img.width,
-                        height: img.height,
-                    });
+            catch (err) {
+                throw err;
             }
         }
+
         // prompt once for a save directory and reuse it
         let folderHandle = null;
         try {
@@ -358,120 +350,82 @@ function PdfSplitter() {
 
             {activeTab === 'combine' && (
                 <section>
-                    <div
-                        style={{
-                            display: "flex",
-                            gap: "20px",
-                            alignItems: "stretch",
-                        }}
-                    >
-                        {/* LEFT SIDE */}
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         <div
+                            onClick={() => combineInputRef.current?.click()}
+                            onDragOver={handleCombineDragOver}
+                            onDragLeave={handleCombineDragLeave}
+                            onDrop={handleCombineDrop}
                             style={{
-                                flex: "0 0 85%",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "20px",
+                                flex: '1 1 320px',
+                                minWidth: '280px',
+                                border: isDragActive ? '2px dashed #007acc' : '2px dashed #999',
+                                borderRadius: '8px',
+                                padding: '20px',
+                                textAlign: 'center',
+                                background: isDragActive ? '#eef7ff' : '#fafafa',
+                                cursor: 'pointer',
+                                userSelect: 'none'
                             }}
                         >
-                            <div
-                                onClick={() => combineInputRef.current?.click()}
-                                onDragOver={handleCombineDragOver}
-                                onDragLeave={handleCombineDragLeave}
-                                onDrop={handleCombineDrop}
-                                style={{
-                                    border: isDragActive
-                                        ? "2px dashed #007acc"
-                                        : "2px dashed #999",
-                                    borderRadius: "8px",
-                                    padding: "40px",
-                                    textAlign: "center",
-                                    background: isDragActive ? "#eef7ff" : "#fafafa",
-                                    cursor: "pointer",
-                                    minHeight: "220px",
+                            <p style={{ margin: 0 }}><strong>Drag files here</strong></p>
+                            <p style={{ margin: '6px 0 0' }}>or click this area to select image files</p>
+                        </div>
 
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "center",
-                                }}
-                            >
-                                <p style={{ margin: 0 }}>
-                                    <strong>Drag files here</strong>
-                                </p>
-
-                                <p style={{ marginTop: "8px" }}>
-                                    or click this area to select PDF/image files
-                                </p>
-                            </div>
-
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', width: '100%', minWidth: '220px' }}>
                             <button
                                 type="button"
                                 onClick={combinePdfs}
                                 style={{
-                                    alignSelf: "center",
-                                    padding: "14px 32px",
-                                    fontSize: "16px",
-                                    borderRadius: "10px",
-                                    minWidth: "220px",
-                                    background:
-                                        "linear-gradient(90deg,#2563eb,#4f46e5)",
-                                    color: "#fff",
-                                    border: "none",
-                                    cursor: "pointer",
+                                    padding: '14px 26px',
+                                    fontSize: '16px',
+                                    borderRadius: '10px',
+                                    minWidth: '220px',
+                                    background: 'linear-gradient(90deg,#2563eb,#4f46e5)',
+                                    color: '#fff',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 8px 18px rgba(37,99,235,0.12)'
                                 }}
                             >
                                 Combine Files
                             </button>
                         </div>
 
-                        {/* RIGHT SIDE */}
-                        <div
-                            style={{
-                                flex: "0 0 15%",
-                                display: "flex",
-                                flexDirection: "column",
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                background: "#fff",
-                                minHeight: "320px",
-                                overflow: "hidden",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    flex: 1,
-                                    overflowY: "auto",
-                                    padding: "12px",
-                                }}
-                            >
+                        <div style={{
+                            flex: '0 0 320px',
+                            minWidth: '220px',
+                            height: '280px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            border: '1px solid #ccc',
+                            borderRadius: '8px',
+                            background: '#fff',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{
+                                flex: '1 1 auto',
+                                overflowY: 'auto',
+                                padding: '12px'
+                            }}>
                                 <strong>Selected files</strong>
-
                                 {combineDropFiles.length > 0 ? (
-                                    <ul style={{ paddingLeft: "20px", marginTop: "8px" }}>
+                                    <ul style={{ paddingLeft: '20px', marginTop: '8px' }}>
                                         {combineDropFiles.map((file, index) => (
                                             <li key={index}>{file.name}</li>
                                         ))}
                                     </ul>
                                 ) : (
-                                    <p style={{ marginTop: "8px", color: "#666" }}>
-                                        No files added yet.
-                                    </p>
+                                    <p style={{ marginTop: '8px', color: '#666' }}>No files added yet.</p>
                                 )}
                             </div>
-
-                            <div
-                                style={{
-                                    padding: "12px",
-                                    borderTop: "1px solid #eee",
-                                    background: "#fafafa",
-                                }}
-                            >
+                            <div style={{ padding: '12px', borderTop: '1px solid #eee', background: '#fafafa' }}>
                                 <button
                                     type="button"
                                     onClick={clearCombineDropFiles}
-                                    style={{ width: "100%" }}
+                                    style={{ width: '100%' }}
                                 >
-                                    Clear Files
+                                    Clear files
                                 </button>
                             </div>
                         </div>
@@ -482,7 +436,7 @@ function PdfSplitter() {
                         accept=".pdf,image/*"
                         ref={combineInputRef}
                         multiple
-                        style={{ display: "none" }}
+                        style={{ display: 'none' }}
                         onChange={(event) => {
                             const files = Array.from(event.target.files || []);
                             if (files.length > 0) {
