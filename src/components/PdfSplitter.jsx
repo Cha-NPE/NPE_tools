@@ -254,7 +254,7 @@ function PdfSplitter() {
 
             setOcrResults((current) => [
                 ...current,
-                { chunkNumber, filename, appNumber, address, ocrText: ocrText || "" }
+                { chunkNumber, filename, appNumber, address, ocrText: ocrText || "", usedFallback: !parsedFilename }
             ]);
 
             try {
@@ -481,43 +481,52 @@ function PdfSplitter() {
                         {isSplitting ? "Splitting…" : "Split PDF"}
                     </button>
 
-                    {ocrResults.length > 0 && (
-                        <div style={{ marginTop: '20px' }}>
-                            <strong>OCR results</strong>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
-                                <thead>
-                                    <tr>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Chunk</th>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Filename used</th>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>App Number</th>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Address</th>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Raw OCR text</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {ocrResults.map((result) => (
-                                        <tr key={result.chunkNumber}>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top' }}>
-                                                {result.chunkNumber}
-                                            </td>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: (result.appNumber && result.address) ? '#000' : '#b45309' }}>
-                                                {result.filename}
-                                            </td>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.appNumber ? '#000' : '#999' }}>
-                                                {result.appNumber || "—"}
-                                            </td>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.address ? '#000' : '#999' }}>
-                                                {result.address || "—"}
-                                            </td>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', whiteSpace: 'pre-wrap', color: result.ocrText ? '#000' : '#999' }}>
-                                                {result.ocrText || "(no text detected)"}
-                                            </td>
+                    {ocrResults.length > 0 && (() => {
+                        const fallbackResults = ocrResults.filter((result) => result.usedFallback);
+                        if (fallbackResults.length === 0) return null;
+
+                        return (
+                            <div style={{ marginTop: '20px' }}>
+                                <strong>Chunks that couldn't be auto-named ({fallbackResults.length})</strong>
+                                <p style={{ margin: '4px 0 8px', color: '#666' }}>
+                                    These fell back to "Document N" because the App Number and/or Address
+                                    couldn't be read from the OCR text. Check the raw text below and rename manually if needed.
+                                </p>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
+                                    <thead>
+                                        <tr>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Chunk</th>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Filename used</th>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>App Number</th>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Address</th>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Raw OCR text</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                    </thead>
+                                    <tbody>
+                                        {fallbackResults.map((result) => (
+                                            <tr key={result.chunkNumber}>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top' }}>
+                                                    {result.chunkNumber}
+                                                </td>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: '#b45309' }}>
+                                                    {result.filename}
+                                                </td>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.appNumber ? '#000' : '#999' }}>
+                                                    {result.appNumber || "—"}
+                                                </td>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.address ? '#000' : '#999' }}>
+                                                    {result.address || "—"}
+                                                </td>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', whiteSpace: 'pre-wrap', color: result.ocrText ? '#000' : '#999' }}>
+                                                    {result.ocrText || "(no text detected)"}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        );
+                    })()}
                 </section>
             )}
 
