@@ -1,5 +1,59 @@
 ﻿import { useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import * as pdfjsLib from "pdfjs-dist";
+import { createWorker } from "tesseract.js";
+
+// Loaded from a CDN so it works regardless of bundler (Vite/CRA/etc).
+// Swap for a locally-bundled worker file later if you'd rather not depend on the CDN.
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+
+// Rectangle to OCR on page 2 of each split chunk, measured from the top of the page.
+const OCR_RECT_TOP_CM = 4;
+const OCR_RECT_BOTTOM_CM = 9;
+const CM_TO_POINTS = 72 / 2.54; // PDF points per cm (PDF points are 72/inch)
+const RENDER_SCALE = 3; // higher render resolution = better OCR accuracy
+
+// Renders `pageNumber` (1-indexed) of a PDF, crops the OCR rectangle out of it,
+// and runs it through the given Tesseract worker. Returns the recognized text,
+// or null if the page doesn't exist / OCR fails.
+async function extractTextFromPageRegion(pdfBytes, pageNumber, ocrWorker) {
+    const pdf = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+    if (pageNumber > pdf.numPages) return null;
+
+    const page = await pdf.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: RENDER_SCALE });
+
+    const pageCanvas = document.createElement("canvas");
+    pageCanvas.width = viewport.width;
+    pageCanvas.height = viewport.height;
+    await page.render({ canvasContext: pageCanvas.getContext("2d"), viewport }).promise;
+
+    const topPx = OCR_RECT_TOP_CM * CM_TO_POINTS * RENDER_SCALE;
+    const bottomPx = Math.min(OCR_RECT_BOTTOM_CM * CM_TO_POINTS * RENDER_SCALE, viewport.height);
+    const cropHeight = bottomPx - topPx;
+    if (cropHeight <= 0) return null;
+
+    const cropCanvas = document.createElement("canvas");
+    cropCanvas.width = viewport.width;
+    cropCanvas.height = cropHeight;
+    cropCanvas.getContext("2d").drawImage(
+        pageCanvas,
+        0, topPx, viewport.width, cropHeight,
+        0, 0, viewport.width, cropHeight
+    );
+
+    const blob = await new Promise((resolve) => cropCanvas.toBlob(resolve, "image/png"));
+    if (!blob) return null;
+
+    try {
+        const { data: { text } } = await ocrWorker.recognize(blob);
+        return text;
+    }
+    catch (error) {
+        console.warn(`OCR failed for page ${pageNumber}:`, error);
+        return null;
+    }
+}
 
 function PdfSplitter() {
     const splitInputRef = useRef(null);
@@ -104,6 +158,9 @@ function PdfSplitter() {
             folderHandle = null;
         }
 
+        // One OCR worker reused across every chunk, terminated once the loop finishes.
+        const ocrWorker = await createWorker("eng");
+
         let fileNumber = 1;
         let successCount = 0;
         let failureCount = 0;
@@ -125,7 +182,15 @@ function PdfSplitter() {
                 continue;
             }
 
-            const filename = sanitizeFilename(`Document ${chunkNumber}`) || `Document ${chunkNumber}`;
+            let ocrText = null;
+            try {
+                ocrText = await extractTextFromPageRegion(outputBytes, 2, ocrWorker);
+            }
+            catch (error) {
+                console.warn("OCR step failed for chunk", chunkNumber, error);
+            }
+
+            const filename = sanitizeFilename(ocrText) || `Document ${chunkNumber}`;
 
             try {
                 if (folderHandle) {
@@ -145,6 +210,8 @@ function PdfSplitter() {
 
             fileNumber++;
         }
+
+        await ocrWorker.terminate();
 
         alert(`Finished. ${successCount} files saved, ${failureCount} failures.`);
     }
