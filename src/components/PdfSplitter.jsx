@@ -75,6 +75,54 @@ function PdfSplitter() {
         return s || null;
     }
 
+    // Pulls the Customer Works Application Number and the site address out of
+    // the raw OCR text for a chunk. The form is a fixed layout, so both fields
+    // are found by anchoring on the surrounding label text rather than trying
+    // to parse the whole form.
+    function extractFieldsFromOcrText(text) {
+        if (!text) return { appNumber: null, address: null };
+
+        // "Customer Works Application Number: 00059387" -> "00059387"
+        const appNumberMatch = text.match(/Customer\s*Works\s*Application\s*Number:?\s*(\d+)/i);
+        const appNumber = appNumberMatch ? appNumberMatch[1] : null;
+
+        // The address sits between "Contractor:" and "Date Work Completed:" on
+        // the form, but OCR runs the contractor name and address together with
+        // no separator (e.g. "Contractor: NPE-Tech 77 Aranui Road Date Work
+        // Completed:"). The contractor name doesn't contain digits, so the
+        // address is taken to start at the first digit in that span (the house
+        // number) and run to the end of the span.
+        let address = null;
+        const contractorMatch = text.match(/Contractor:?/i);
+        const dateMatch = text.match(/Date\s*Work\s*Completed/i);
+        if (contractorMatch && dateMatch) {
+            const contractorEnd = contractorMatch.index + contractorMatch[0].length;
+            const dateStart = dateMatch.index;
+            if (dateStart > contractorEnd) {
+                const between = text.slice(contractorEnd, dateStart);
+                const digitIdx = between.search(/\d/);
+                if (digitIdx !== -1) {
+                    address = between.slice(digitIdx).replace(/\s+/g, " ").trim();
+                    // Drop stray trailing OCR noise like a lone pipe/quote left
+                    // over from a table border (e.g. "30 Freyberg Street |\"").
+                    address = address.replace(/[|"'`]+$/g, "").trim() || null;
+                }
+            }
+        }
+
+        return { appNumber, address };
+    }
+
+    // Builds the "[App Number] - [Address] - As Builts" filename. Returns null
+    // if either field couldn't be confidently read, so the caller can fall
+    // back to a generic name instead of saving a wrong/incomplete filename.
+    function buildAsBuiltsFilename(ocrText) {
+        const { appNumber, address } = extractFieldsFromOcrText(ocrText);
+        if (!appNumber || !address) return { filename: null, appNumber, address };
+        const filename = sanitizeFilename(`${appNumber} - ${address} - As Builts`);
+        return { filename, appNumber, address };
+    }
+
     function downloadBlob(bytes, filename) {
         const blob = new Blob([bytes], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
@@ -198,11 +246,15 @@ function PdfSplitter() {
                 console.warn("OCR step failed for chunk", chunkNumber, error);
             }
 
-            const filename = sanitizeFilename(ocrText) || `Document ${chunkNumber}`;
+            const { filename: parsedFilename, appNumber, address } = buildAsBuiltsFilename(ocrText);
+            const filename = parsedFilename || `Document ${chunkNumber}`;
+            if (!parsedFilename) {
+                console.warn(`Chunk ${chunkNumber}: couldn't parse App Number/Address from OCR text, using fallback name.`);
+            }
 
             setOcrResults((current) => [
                 ...current,
-                { chunkNumber, filename, ocrText: ocrText || "" }
+                { chunkNumber, filename, appNumber, address, ocrText: ocrText || "" }
             ]);
 
             try {
@@ -437,6 +489,8 @@ function PdfSplitter() {
                                     <tr>
                                         <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Chunk</th>
                                         <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Filename used</th>
+                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>App Number</th>
+                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Address</th>
                                         <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Raw OCR text</th>
                                     </tr>
                                 </thead>
@@ -446,8 +500,14 @@ function PdfSplitter() {
                                             <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top' }}>
                                                 {result.chunkNumber}
                                             </td>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top' }}>
+                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: (result.appNumber && result.address) ? '#000' : '#b45309' }}>
                                                 {result.filename}
+                                            </td>
+                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.appNumber ? '#000' : '#999' }}>
+                                                {result.appNumber || "—"}
+                                            </td>
+                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.address ? '#000' : '#999' }}>
+                                                {result.address || "—"}
                                             </td>
                                             <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', whiteSpace: 'pre-wrap', color: result.ocrText ? '#000' : '#999' }}>
                                                 {result.ocrText || "(no text detected)"}
