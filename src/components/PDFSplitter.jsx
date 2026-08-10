@@ -17,7 +17,10 @@ const RENDER_SCALE = 3; // higher render resolution = better OCR accuracy
 // and runs it through the given Tesseract worker. Returns the recognized text,
 // or null if the page doesn't exist / OCR fails.
 async function extractTextFromPageRegion(pdfBytes, pageNumber, ocrWorker) {
-    const pdf = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+    // pdf.js transfers ownership of the typed array it's given to its worker
+    // thread, which detaches the underlying buffer. Pass a copy so the
+    // original bytes (still needed for saving the PDF) stay intact.
+    const pdf = await pdfjsLib.getDocument({ data: pdfBytes.slice() }).promise;
     if (pageNumber > pdf.numPages) return null;
 
     const page = await pdf.getPage(pageNumber);
