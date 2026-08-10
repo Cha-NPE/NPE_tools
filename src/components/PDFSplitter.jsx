@@ -61,6 +61,8 @@ function PdfSplitter() {
     const [combineDropFiles, setCombineDropFiles] = useState([]);
     const [isDragActive, setIsDragActive] = useState(false);
     const [activeTab, setActiveTab] = useState('split');
+    const [ocrResults, setOcrResults] = useState([]);
+    const [isSplitting, setIsSplitting] = useState(false);
 
     function sanitizeFilename(name) {
         if (!name) return null;
@@ -143,6 +145,9 @@ function PdfSplitter() {
             return;
         }
 
+        setOcrResults([]);
+        setIsSplitting(true);
+
         const pdfBytes = await file.arrayBuffer();
         const sourcePdf = await PDFDocument.load(pdfBytes);
         const pageCount = sourcePdf.getPageCount();
@@ -192,6 +197,11 @@ function PdfSplitter() {
 
             const filename = sanitizeFilename(ocrText) || `Document ${chunkNumber}`;
 
+            setOcrResults((current) => [
+                ...current,
+                { chunkNumber, filename, ocrText: ocrText || "" }
+            ]);
+
             try {
                 if (folderHandle) {
                     await savePdf(outputBytes, filename, folderHandle);
@@ -212,6 +222,7 @@ function PdfSplitter() {
         }
 
         await ocrWorker.terminate();
+        setIsSplitting(false);
 
         alert(`Finished. ${successCount} files saved, ${failureCount} failures.`);
     }
@@ -411,7 +422,39 @@ function PdfSplitter() {
                     <input type="file" accept=".pdf" ref={splitInputRef} />
                     <br />
                     <br />
-                    <button onClick={splitPdf}>Split PDF</button>
+                    <button onClick={splitPdf} disabled={isSplitting}>
+                        {isSplitting ? "Splitting…" : "Split PDF"}
+                    </button>
+
+                    {ocrResults.length > 0 && (
+                        <div style={{ marginTop: '20px' }}>
+                            <strong>OCR results</strong>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
+                                <thead>
+                                    <tr>
+                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Chunk</th>
+                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Filename used</th>
+                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Raw OCR text</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {ocrResults.map((result) => (
+                                        <tr key={result.chunkNumber}>
+                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top' }}>
+                                                {result.chunkNumber}
+                                            </td>
+                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top' }}>
+                                                {result.filename}
+                                            </td>
+                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', whiteSpace: 'pre-wrap', color: result.ocrText ? '#000' : '#999' }}>
+                                                {result.ocrText || "(no text detected)"}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </section>
             )}
 
