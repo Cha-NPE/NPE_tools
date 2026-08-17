@@ -353,26 +353,27 @@ function PdfSplitter() {
             });
         }
 
-        // helper: embed image file into mergedPdf using its native format and embedded dimensions
+        // helper: embed image file into mergedPdf.
+        // Every format is routed through the canvas (imageFileToPngBytes) rather
+        // than embedding raw bytes. This matters most for JPEGs: phone/camera
+        // photos often store an EXIF "Orientation" tag instead of rotating the
+        // actual pixel data, and pdf-lib's embedJpg ignores that tag entirely,
+        // which is what caused images to come out sideways/upside-down. Drawing
+        // through an <img>/<canvas> first makes the browser apply that EXIF
+        // rotation for us, so the PNG bytes we hand to pdf-lib are already
+        // right-side up.
         async function embedImageFile(file) {
             try {
-                let img;
+                const isSupported =
+                    (file.type && file.type.startsWith('image/')) ||
+                    /\.(png|jpe?g|gif|webp|bmp)$/i.test(file.name || '');
 
-                if (file.type === 'image/jpeg' || /\.jpe?g$/.test(file.name.toLowerCase())) {
-                    const bytes = await file.arrayBuffer();
-                    img = await mergedPdf.embedJpg(bytes);
-                }
-                else if (file.type === 'image/png' || /\.png$/.test(file.name.toLowerCase())) {
-                    const bytes = await file.arrayBuffer();
-                    img = await mergedPdf.embedPng(bytes);
-                }
-                else if ((file.type && file.type.startsWith('image/')) || /\.(gif|webp|bmp)$/i.test(file.name)) {
-                    const pngBytes = await imageFileToPngBytes(file);
-                    img = await mergedPdf.embedPng(pngBytes);
-                }
-                else {
+                if (!isSupported) {
                     throw new Error('Unsupported image type');
                 }
+
+                const pngBytes = await imageFileToPngBytes(file);
+                const img = await mergedPdf.embedPng(pngBytes);
 
                 const dimensions = img.scale(1);
                 const page = mergedPdf.addPage([dimensions.width, dimensions.height]);
