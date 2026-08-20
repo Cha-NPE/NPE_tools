@@ -320,12 +320,8 @@ function PdfSplitter() {
 
         const mergedPdf = await PDFDocument.create();
 
-        // helper: draw an image file onto a canvas (which applies EXIF orientation
-        // for us) and re-encode it as bytes in the given output format. Re-encoding
-        // JPEGs back to JPEG (instead of PNG) keeps this fast and keeps file sizes
-        // close to the original — PNG is lossless and re-compressing a multi-
-        // megapixel photo as PNG is what made the combiner slow.
-        async function normalizeImageOrientation(file, outputType) {
+        // helper: convert arbitrary image file (gif/webp/etc) to PNG bytes via canvas
+        async function imageFileToPngBytes(file) {
             return await new Promise((resolve, reject) => {
                 const url = URL.createObjectURL(file);
                 const img = new Image();
@@ -342,7 +338,7 @@ function PdfSplitter() {
                                 resolve(new Uint8Array(ab));
                                 URL.revokeObjectURL(url);
                             }).catch(reject);
-                        }, outputType, outputType === 'image/jpeg' ? 0.92 : undefined);
+                        }, 'image/png');
                     }
                     catch (e) {
                         URL.revokeObjectURL(url);
@@ -357,34 +353,26 @@ function PdfSplitter() {
             });
         }
 
-        // helper: embed image file into mergedPdf.
-        // Every format is routed through the canvas (normalizeImageOrientation)
-        // rather than embedding raw bytes. This matters most for JPEGs:
-        // phone/camera photos often store an EXIF "Orientation" tag instead of
-        // rotating the actual pixel data, and pdf-lib's embedJpg ignores that tag
-        // entirely, which is what caused images to come out sideways/upside-down.
-        // Drawing through an <img>/<canvas> first makes the browser apply that
-        // EXIF rotation for us. JPEGs are re-encoded back to JPEG (cheap, small);
-        // everything else is re-encoded as PNG (lossless, needed since gif/webp/bmp
-        // don't have a pdf-lib embed path of their own).
+        // helper: embed image file into mergedPdf using its native format and embedded dimensions
         async function embedImageFile(file) {
             try {
-                const name = (file.name || '').toLowerCase();
-                const isJpeg = file.type === 'image/jpeg' || /\.jpe?g$/.test(name);
-                const isSupported =
-                    isJpeg ||
-                    (file.type && file.type.startsWith('image/')) ||
-                    /\.(png|gif|webp|bmp)$/i.test(name);
+                let img;
 
-                if (!isSupported) {
+                if (file.type === 'image/jpeg' || /\.jpe?g$/.test(file.name.toLowerCase())) {
+                    const bytes = await file.arrayBuffer();
+                    img = await mergedPdf.embedJpg(bytes);
+                }
+                else if (file.type === 'image/png' || /\.png$/.test(file.name.toLowerCase())) {
+                    const bytes = await file.arrayBuffer();
+                    img = await mergedPdf.embedPng(bytes);
+                }
+                else if ((file.type && file.type.startsWith('image/')) || /\.(gif|webp|bmp)$/i.test(file.name)) {
+                    const pngBytes = await imageFileToPngBytes(file);
+                    img = await mergedPdf.embedPng(pngBytes);
+                }
+                else {
                     throw new Error('Unsupported image type');
                 }
-
-                const outputType = isJpeg ? 'image/jpeg' : 'image/png';
-                const normalizedBytes = await normalizeImageOrientation(file, outputType);
-                const img = isJpeg
-                    ? await mergedPdf.embedJpg(normalizedBytes)
-                    : await mergedPdf.embedPng(normalizedBytes);
 
                 const dimensions = img.scale(1);
                 const page = mergedPdf.addPage([dimensions.width, dimensions.height]);
