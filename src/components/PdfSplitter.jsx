@@ -254,7 +254,7 @@ function PdfSplitter() {
 
             setOcrResults((current) => [
                 ...current,
-                { chunkNumber, filename, appNumber, address, ocrText: ocrText || "" }
+                { chunkNumber, filename, appNumber, address, ocrText: ocrText || "", usedFallback: !parsedFilename }
             ]);
 
             try {
@@ -320,8 +320,12 @@ function PdfSplitter() {
 
         const mergedPdf = await PDFDocument.create();
 
-        // helper: convert arbitrary image file (gif/webp/etc) to PNG bytes via canvas
-        async function imageFileToPngBytes(file) {
+        // helper: draw an image file onto a canvas (which applies EXIF orientation
+        // for us) and re-encode it as bytes in the given output format. Re-encoding
+        // JPEGs back to JPEG (instead of PNG) keeps this fast and keeps file sizes
+        // close to the original — PNG is lossless and re-compressing a multi-
+        // megapixel photo as PNG is what made the combiner slow.
+        async function normalizeImageOrientation(file, outputType) {
             return await new Promise((resolve, reject) => {
                 const url = URL.createObjectURL(file);
                 const img = new Image();
@@ -338,7 +342,7 @@ function PdfSplitter() {
                                 resolve(new Uint8Array(ab));
                                 URL.revokeObjectURL(url);
                             }).catch(reject);
-                        }, 'image/png');
+                        }, outputType, outputType === 'image/jpeg' ? 0.92 : undefined);
                     }
                     catch (e) {
                         URL.revokeObjectURL(url);
@@ -354,26 +358,33 @@ function PdfSplitter() {
         }
 
         // helper: embed image file into mergedPdf.
-        // Every format is routed through the canvas (imageFileToPngBytes) rather
-        // than embedding raw bytes. This matters most for JPEGs: phone/camera
-        // photos often store an EXIF "Orientation" tag instead of rotating the
-        // actual pixel data, and pdf-lib's embedJpg ignores that tag entirely,
-        // which is what caused images to come out sideways/upside-down. Drawing
-        // through an <img>/<canvas> first makes the browser apply that EXIF
-        // rotation for us, so the PNG bytes we hand to pdf-lib are already
-        // right-side up.
+        // Every format is routed through the canvas (normalizeImageOrientation)
+        // rather than embedding raw bytes. This matters most for JPEGs:
+        // phone/camera photos often store an EXIF "Orientation" tag instead of
+        // rotating the actual pixel data, and pdf-lib's embedJpg ignores that tag
+        // entirely, which is what caused images to come out sideways/upside-down.
+        // Drawing through an <img>/<canvas> first makes the browser apply that
+        // EXIF rotation for us. JPEGs are re-encoded back to JPEG (cheap, small);
+        // everything else is re-encoded as PNG (lossless, needed since gif/webp/bmp
+        // don't have a pdf-lib embed path of their own).
         async function embedImageFile(file) {
             try {
+                const name = (file.name || '').toLowerCase();
+                const isJpeg = file.type === 'image/jpeg' || /\.jpe?g$/.test(name);
                 const isSupported =
+                    isJpeg ||
                     (file.type && file.type.startsWith('image/')) ||
-                    /\.(png|jpe?g|gif|webp|bmp)$/i.test(file.name || '');
+                    /\.(png|gif|webp|bmp)$/i.test(name);
 
                 if (!isSupported) {
                     throw new Error('Unsupported image type');
                 }
 
-                const pngBytes = await imageFileToPngBytes(file);
-                const img = await mergedPdf.embedPng(pngBytes);
+                const outputType = isJpeg ? 'image/jpeg' : 'image/png';
+                const normalizedBytes = await normalizeImageOrientation(file, outputType);
+                const img = isJpeg
+                    ? await mergedPdf.embedJpg(normalizedBytes)
+                    : await mergedPdf.embedPng(normalizedBytes);
 
                 const dimensions = img.scale(1);
                 const page = mergedPdf.addPage([dimensions.width, dimensions.height]);
@@ -482,43 +493,52 @@ function PdfSplitter() {
                         {isSplitting ? "Splitting…" : "Split PDF"}
                     </button>
 
-                    {ocrResults.length > 0 && (
-                        <div style={{ marginTop: '20px' }}>
-                            <strong>OCR results</strong>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
-                                <thead>
-                                    <tr>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Chunk</th>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Filename used</th>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>App Number</th>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Address</th>
-                                        <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Raw OCR text</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {ocrResults.map((result) => (
-                                        <tr key={result.chunkNumber}>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top' }}>
-                                                {result.chunkNumber}
-                                            </td>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: (result.appNumber && result.address) ? '#000' : '#b45309' }}>
-                                                {result.filename}
-                                            </td>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.appNumber ? '#000' : '#999' }}>
-                                                {result.appNumber || "—"}
-                                            </td>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.address ? '#000' : '#999' }}>
-                                                {result.address || "—"}
-                                            </td>
-                                            <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', whiteSpace: 'pre-wrap', color: result.ocrText ? '#000' : '#999' }}>
-                                                {result.ocrText || "(no text detected)"}
-                                            </td>
+                    {ocrResults.length > 0 && (() => {
+                        const fallbackResults = ocrResults.filter((result) => result.usedFallback);
+                        if (fallbackResults.length === 0) return null;
+
+                        return (
+                            <div style={{ marginTop: '20px' }}>
+                                <strong>Chunks that couldn't be auto-named ({fallbackResults.length})</strong>
+                                <p style={{ margin: '4px 0 8px', color: '#666' }}>
+                                    These fell back to "Document N" because the App Number and/or Address
+                                    couldn't be read from the OCR text. Check the raw text below and rename manually if needed.
+                                </p>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
+                                    <thead>
+                                        <tr>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Chunk</th>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Filename used</th>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>App Number</th>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Address</th>
+                                            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '6px' }}>Raw OCR text</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                    </thead>
+                                    <tbody>
+                                        {fallbackResults.map((result) => (
+                                            <tr key={result.chunkNumber}>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top' }}>
+                                                    {result.chunkNumber}
+                                                </td>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: '#b45309' }}>
+                                                    {result.filename}
+                                                </td>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.appNumber ? '#000' : '#999' }}>
+                                                    {result.appNumber || "—"}
+                                                </td>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', color: result.address ? '#000' : '#999' }}>
+                                                    {result.address || "—"}
+                                                </td>
+                                                <td style={{ borderBottom: '1px solid #eee', padding: '6px', verticalAlign: 'top', whiteSpace: 'pre-wrap', color: result.ocrText ? '#000' : '#999' }}>
+                                                    {result.ocrText || "(no text detected)"}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        );
+                    })()}
                 </section>
             )}
 
