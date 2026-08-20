@@ -66,6 +66,7 @@ function PdfSplitter() {
     const [activeTab, setActiveTab] = useState('split');
     const [ocrResults, setOcrResults] = useState([]);
     const [isSplitting, setIsSplitting] = useState(false);
+    const [fixImageRotation, setFixImageRotation] = useState(true);
 
     function sanitizeFilename(name) {
         if (!name) return null;
@@ -320,8 +321,12 @@ function PdfSplitter() {
 
         const mergedPdf = await PDFDocument.create();
 
-        // helper: convert arbitrary image file (gif/webp/etc) to PNG bytes via canvas
-        async function imageFileToPngBytes(file) {
+        // helper: draw an image file onto a canvas (which applies EXIF orientation
+        // for us) and re-encode it as bytes in the given output format. Re-encoding
+        // JPEGs back to JPEG (instead of PNG) keeps this fast and keeps file sizes
+        // close to the original — PNG is lossless and re-compressing a multi-
+        // megapixel photo as PNG is what made the combiner slow.
+        async function normalizeImageOrientation(file, outputType) {
             return await new Promise((resolve, reject) => {
                 const url = URL.createObjectURL(file);
                 const img = new Image();
@@ -338,7 +343,7 @@ function PdfSplitter() {
                                 resolve(new Uint8Array(ab));
                                 URL.revokeObjectURL(url);
                             }).catch(reject);
-                        }, 'image/png');
+                        }, outputType, outputType === 'image/jpeg' ? 0.92 : undefined);
                     }
                     catch (e) {
                         URL.revokeObjectURL(url);
@@ -353,25 +358,54 @@ function PdfSplitter() {
             });
         }
 
-        // helper: embed image file into mergedPdf using its native format and embedded dimensions
-        async function embedImageFile(file) {
+        // helper: embed image file into mergedPdf.
+        //
+        // When fixRotation is true, JPEGs and PNGs are routed through the canvas
+        // (normalizeImageOrientation) rather than embedding raw bytes. This matters
+        // most for JPEGs: phone/camera photos often store an EXIF "Orientation" tag
+        // instead of rotating the actual pixel data, and pdf-lib's embedJpg ignores
+        // that tag entirely, which is what caused images to come out sideways/
+        // upside-down. Drawing through an <img>/<canvas> first makes the browser
+        // apply that EXIF rotation for us. JPEGs are re-encoded back to JPEG
+        // (cheap, small); PNGs are re-encoded as PNG.
+        //
+        // When fixRotation is false, JPEGs/PNGs are embedded straight from their
+        // raw bytes (the original, faster behavior) — any EXIF rotation is left
+        // as-is, which is fine for scans/screenshots that were never mis-rotated
+        // and noticeably faster for large batches.
+        //
+        // gif/webp/bmp never had a raw pdf-lib embed path, so they always go
+        // through the canvas regardless of the toggle.
+        async function embedImageFile(file, fixRotation) {
             try {
+                const name = (file.name || '').toLowerCase();
+                const isJpeg = file.type === 'image/jpeg' || /\.jpe?g$/.test(name);
+                const isPng = file.type === 'image/png' || /\.png$/.test(name);
+                const isOtherImage =
+                    !isJpeg && !isPng &&
+                    ((file.type && file.type.startsWith('image/')) || /\.(gif|webp|bmp)$/i.test(name));
+
+                if (!isJpeg && !isPng && !isOtherImage) {
+                    throw new Error('Unsupported image type');
+                }
+
                 let img;
 
-                if (file.type === 'image/jpeg' || /\.jpe?g$/.test(file.name.toLowerCase())) {
+                if (!fixRotation && isJpeg) {
                     const bytes = await file.arrayBuffer();
                     img = await mergedPdf.embedJpg(bytes);
                 }
-                else if (file.type === 'image/png' || /\.png$/.test(file.name.toLowerCase())) {
+                else if (!fixRotation && isPng) {
                     const bytes = await file.arrayBuffer();
                     img = await mergedPdf.embedPng(bytes);
                 }
-                else if ((file.type && file.type.startsWith('image/')) || /\.(gif|webp|bmp)$/i.test(file.name)) {
-                    const pngBytes = await imageFileToPngBytes(file);
-                    img = await mergedPdf.embedPng(pngBytes);
+                else if (isJpeg) {
+                    const normalizedBytes = await normalizeImageOrientation(file, 'image/jpeg');
+                    img = await mergedPdf.embedJpg(normalizedBytes);
                 }
                 else {
-                    throw new Error('Unsupported image type');
+                    const normalizedBytes = await normalizeImageOrientation(file, 'image/png');
+                    img = await mergedPdf.embedPng(normalizedBytes);
                 }
 
                 const dimensions = img.scale(1);
@@ -405,7 +439,7 @@ function PdfSplitter() {
                     copiedPages.forEach((page) => mergedPdf.addPage(page));
                 }
                 else if (file.type && file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp)$/i.test(name)) {
-                    await embedImageFile(file);
+                    await embedImageFile(file, fixImageRotation);
                 }
                 else {
                     console.warn('Skipping unsupported file type:', file.name);
@@ -532,6 +566,24 @@ function PdfSplitter() {
 
             {activeTab === 'combine' && (
                 <section>
+                    <label style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '16px',
+                        cursor: 'pointer',
+                        userSelect: 'none'
+                    }}>
+                        <input
+                            type="checkbox"
+                            checked={fixImageRotation}
+                            onChange={(event) => setFixImageRotation(event.target.checked)}
+                        />
+                        <span>
+                            Fix image rotation (recommended for phone photos; slower)
+                        </span>
+                    </label>
+
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         <div
                             onClick={() => combineInputRef.current?.click()}
