@@ -201,7 +201,7 @@ function NRFormatter() {
         }</strong></div>
         <div><strong>COC, ROI?, & lock off photo attached</strong></div>
         <div><strong>Permanent/Temporary: ${permanent}</strong></div>
-        <div><strong>J A Russell PO# 459XXX</strong></div>
+        <div><strong>J A Russell PO# 460XXX</strong></div>
         ${assetTypeMissing ? `<div><strong>Asset missing</strong></div>` : ``}
         ${assetNumberMissing ? `<div><strong>Asset number missing</strong></div>` : ``}
         ` : ``}
