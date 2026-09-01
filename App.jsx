@@ -4,6 +4,7 @@ import DGFormatter from "./src/components/DGFormatter";
 import PdfSplitter from "./src/components/PdfSplitter";
 import GWFormatter from "./src/components/GWFormatter";
 import NRFormatter from "./src/components/NRFormatter";
+import ScopingPackCreator from "./src/components/ScopingPackCreator";
 
 import "./App.css";
 
@@ -19,6 +20,8 @@ function App() {
                 return <NRFormatter />;
             case "pdf":
                 return <PdfSplitter />;
+            case "scoping":
+                return <ScopingPackCreator />;
             case "dg":
             default:
                 return <DGFormatter />;
@@ -53,6 +56,10 @@ function App() {
                     
                     <button onClick={() => setSelectedTool("pdf")}>
                         {sidebarOpen ? "PDF Tools" : "PDF"}
+                    </button>  
+
+                    <button onClick={() => setSelectedTool("scoping")}>
+                        {sidebarOpen ? "Scoping Pack Creator" : "Scoping"}
                     </button>  
                     </>
                 )}
