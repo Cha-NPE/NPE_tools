@@ -15,12 +15,35 @@ function loadScript(src) {
   });
 }
 
+// Fetches a PDF bundled in the repo and returns it as an ArrayBuffer.
+// Relative paths (no leading slash) so this also works on GitHub Pages
+// project sites served from /<repo-name>/ rather than the domain root.
+async function fetchRepoPdf(relativePath) {
+  const res = await fetch(relativePath);
+  if (!res.ok) {
+    throw new Error(`Could not load ${relativePath} (${res.status})`);
+  }
+  return res.arrayBuffer();
+}
+
+// Paths are relative to the deployed site (i.e. to index.html).
+// Put these two files in your repo, e.g. in a top-level "assets" folder,
+// and update the paths below to match.
+const POLE_FORM = "assets/pole-form.pdf";
+const CLOSING_PAGE_URL = "assets/closing-page.pdf";
+
+
+// Hard-coded box positions (in points, from the top-left of the page).
+// Edit these directly to reposition the boxes — they are no longer exposed as inputs.
+const POSITIONS = {
+  front: { x: 25, y: 490, w: 540, h: 90 },
+  address: { x: 130, y: 110, w: 200, h: 11 },
+  poleId: { x: 130, y: 125, w: 200, h: 11 },
+  designer: { x: 130, y: 155, w: 200, h: 11 },
+};
+
 const FIELD_DEFAULTS = {
   pageNum: 1,
-  x: 25,
-  y: 490,
-  w: 540,
-  h: 90,
   customScope: "Replace this with the scope details specific to this document.",
   fontSize: 9,
   padding: 10,
@@ -31,18 +54,13 @@ const FIELD_DEFAULTS = {
   repeatDesigner: "",
   poleIds: "",
 
-  addrX: 130, addrY: 110, addrW: 200, addrH: 11,
-  poleX: 130, poleY: 125, poleW: 200, poleH: 11,
-  desX: 130, desY: 155, desW: 200, desH: 11,
-
   closingPageNum: 1,
 };
 
 export default function ScopingPackCreator() {
   const [fields, setFields] = useState(FIELD_DEFAULTS);
   const [uploadStatus, setUploadStatus] = useState("No file loaded.");
-  const [repeatUploadStatus, setRepeatUploadStatus] = useState("No file loaded.");
-  const [closingUploadStatus, setClosingUploadStatus] = useState("No file loaded.");
+  const [templatesStatus, setTemplatesStatus] = useState("Loading repeated-page and closing-page templates...");
   const [status, setStatus] = useState("");
   const [previewPage, setPreviewPage] = useState(1);
   const [pageCount, setPageCount] = useState(null);
@@ -71,6 +89,30 @@ export default function ScopingPackCreator() {
       }
     })();
     return () => { cancelled = true; };
+  }, []);
+
+  // Fetch the repeated-page and closing-page templates from the repo once on mount,
+  // instead of requiring them to be uploaded each time.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [repeatBuf, closingBuf] = await Promise.all([
+          fetchRepoPdf(POLE_FORM),
+          fetchRepoPdf(CLOSING_PAGE_URL),
+        ]);
+        if (cancelled) return;
+        repeatBytesRef.current = repeatBuf;
+        closingBytesRef.current = closingBuf;
+        setTemplatesStatus("Repeated-page and closing-page templates loaded from repo.");
+        scheduleRender();
+      } catch (err) {
+        if (cancelled) return;
+        setTemplatesStatus("Error loading templates from repo: " + err.message);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateField = (key) => (e) => {
@@ -134,10 +176,10 @@ export default function ScopingPackCreator() {
     const frontPage = frontPages[pageIndex];
     const { height: frontPageHeight } = frontPage.getSize();
 
-    const boxX = parseFloat(fields.x);
-    const yFromTop = parseFloat(fields.y);
-    const boxW = parseFloat(fields.w);
-    const boxH = parseFloat(fields.h);
+    const boxX = POSITIONS.front.x;
+    const yFromTop = POSITIONS.front.y;
+    const boxW = POSITIONS.front.w;
+    const boxH = POSITIONS.front.h;
     const boxY = frontPageHeight - yFromTop - boxH;
 
     frontPage.drawRectangle({
@@ -198,11 +240,11 @@ export default function ScopingPackCreator() {
         const { height: repeatPageHeight } = copiedPage.getSize();
 
         drawFieldText(copiedPage, repeatPageHeight, address, fontRegular, templateFontSize,
-          parseFloat(fields.addrX), parseFloat(fields.addrY), parseFloat(fields.addrW), parseFloat(fields.addrH), PDFLib);
+          POSITIONS.address.x, POSITIONS.address.y, POSITIONS.address.w, POSITIONS.address.h, PDFLib);
         drawFieldText(copiedPage, repeatPageHeight, poleId, fontRegular, templateFontSize,
-          parseFloat(fields.poleX), parseFloat(fields.poleY), parseFloat(fields.poleW), parseFloat(fields.poleH), PDFLib);
+          POSITIONS.poleId.x, POSITIONS.poleId.y, POSITIONS.poleId.w, POSITIONS.poleId.h, PDFLib);
         drawFieldText(copiedPage, repeatPageHeight, designer, fontRegular, templateFontSize,
-          parseFloat(fields.desX), parseFloat(fields.desY), parseFloat(fields.desW), parseFloat(fields.desH), PDFLib);
+          POSITIONS.designer.x, POSITIONS.designer.y, POSITIONS.designer.w, POSITIONS.designer.h, PDFLib);
       }
     }
 
@@ -272,22 +314,6 @@ export default function ScopingPackCreator() {
     renderPreview();
   };
 
-  const handleRepeatUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    repeatBytesRef.current = await file.arrayBuffer();
-    setRepeatUploadStatus(`Loaded: ${file.name}`);
-    scheduleRender();
-  };
-
-  const handleClosingUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    closingBytesRef.current = await file.arrayBuffer();
-    setClosingUploadStatus(`Loaded: ${file.name}`);
-    scheduleRender();
-  };
-
   const handleDownload = async () => {
     try {
       setStatus("Building PDF...");
@@ -351,22 +377,6 @@ export default function ScopingPackCreator() {
                 <label style={styles.label}>Page number</label>
                 <input type="number" style={styles.inputNumber} min={1} value={fields.pageNum} onChange={updateField("pageNum")} />
               </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>X (from left, pt)</label>
-                <input type="number" style={styles.inputNumber} value={fields.x} onChange={updateField("x")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Y (from TOP, pt)</label>
-                <input type="number" style={styles.inputNumber} value={fields.y} onChange={updateField("y")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Width (pt)</label>
-                <input type="number" style={styles.inputNumber} value={fields.w} onChange={updateField("w")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Height (pt)</label>
-                <input type="number" style={styles.inputNumber} value={fields.h} onChange={updateField("h")} />
-              </div>
             </div>
             <div style={styles.control}>
               <label style={styles.label}>Custom scope text (fills the [custom text] section):</label>
@@ -390,12 +400,11 @@ export default function ScopingPackCreator() {
           <fieldset style={styles.fieldset}>
             <legend style={styles.legend}>Repeated page — one per Pole ID</legend>
             <div style={styles.hint}>
-              Upload the page with the Project Address / Pole ID / Designer table.
+              Fetched automatically from the repo ({POLE_FORM}).
               It gets appended once per Pole ID listed below, with the fields stamped in.
             </div>
             <div style={styles.control}>
-              <input type="file" accept="application/pdf" onChange={handleRepeatUpload} />
-              <div style={styles.fileStatus}>{repeatUploadStatus}</div>
+              <div style={styles.fileStatus}>{templatesStatus}</div>
             </div>
             <div style={styles.row}>
               <div style={styles.rowItem}>
@@ -425,71 +434,15 @@ export default function ScopingPackCreator() {
                 onChange={updateField("poleIds")}
               />
             </div>
-            <div style={styles.hint}>Field positions on the repeated page (from top-left of the page, in points).</div>
-            <div style={styles.row}>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Address X</label>
-                <input type="number" style={styles.inputNumber} value={fields.addrX} onChange={updateField("addrX")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Address Y (top)</label>
-                <input type="number" style={styles.inputNumber} value={fields.addrY} onChange={updateField("addrY")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Address W</label>
-                <input type="number" style={styles.inputNumber} value={fields.addrW} onChange={updateField("addrW")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Address H</label>
-                <input type="number" style={styles.inputNumber} value={fields.addrH} onChange={updateField("addrH")} />
-              </div>
-            </div>
-            <div style={styles.row}>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Pole ID X</label>
-                <input type="number" style={styles.inputNumber} value={fields.poleX} onChange={updateField("poleX")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Pole ID Y (top)</label>
-                <input type="number" style={styles.inputNumber} value={fields.poleY} onChange={updateField("poleY")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Pole ID W</label>
-                <input type="number" style={styles.inputNumber} value={fields.poleW} onChange={updateField("poleW")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Pole ID H</label>
-                <input type="number" style={styles.inputNumber} value={fields.poleH} onChange={updateField("poleH")} />
-              </div>
-            </div>
-            <div style={styles.row}>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Designer X</label>
-                <input type="number" style={styles.inputNumber} value={fields.desX} onChange={updateField("desX")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Designer Y (top)</label>
-                <input type="number" style={styles.inputNumber} value={fields.desY} onChange={updateField("desY")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Designer W</label>
-                <input type="number" style={styles.inputNumber} value={fields.desW} onChange={updateField("desW")} />
-              </div>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Designer H</label>
-                <input type="number" style={styles.inputNumber} value={fields.desH} onChange={updateField("desH")} />
-              </div>
-            </div>
           </fieldset>
         </div>
 
         <div style={styles.middlePanel}>
           <fieldset style={styles.fieldset}>
             <legend style={styles.legend}>Closing page</legend>
-            <div style={styles.hint}>Uploaded as-is and appended once, right at the very end of the pack.</div>
+            <div style={styles.hint}>Fetched automatically from the repo ({CLOSING_PAGE_URL}), appended once at the very end of the pack.</div>
             <div style={styles.control}>
-              <input type="file" accept="application/pdf" onChange={handleClosingUpload} />
-              <div style={styles.fileStatus}>{closingUploadStatus}</div>
+              <div style={styles.fileStatus}>{templatesStatus}</div>
             </div>
             <div style={styles.row}>
               <div style={styles.rowItem}>
