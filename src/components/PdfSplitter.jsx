@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import * as pdfjsLib from "pdfjs-dist";
 import { createWorker } from "tesseract.js";
@@ -67,6 +67,35 @@ function PdfSplitter() {
     const [ocrResults, setOcrResults] = useState([]);
     const [isSplitting, setIsSplitting] = useState(false);
     const [fixImageRotation, setFixImageRotation] = useState(true);
+    const [draggedFileIndex, setDraggedFileIndex] = useState(null);
+    const [dragOverFileIndex, setDragOverFileIndex] = useState(null);
+
+    // Object URLs generated for image thumbnails, keyed by File object so the
+    // same file keeps the same thumbnail across re-renders/reorders. Revoked
+    // as files are removed and on unmount to avoid leaking blob URLs.
+    const thumbnailUrlsRef = useRef(new Map());
+
+    useEffect(() => {
+        return () => {
+            thumbnailUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+            thumbnailUrlsRef.current.clear();
+        };
+    }, []);
+
+    function getThumbnailUrl(file) {
+        const isImage = (file.type && file.type.startsWith('image/')) || /\.(png|jpe?g|gif|webp|bmp)$/i.test(file.name || '');
+        if (!isImage) return null;
+
+        if (!thumbnailUrlsRef.current.has(file)) {
+            thumbnailUrlsRef.current.set(file, URL.createObjectURL(file));
+        }
+        return thumbnailUrlsRef.current.get(file);
+    }
+
+    function isPdfFile(file) {
+        const name = (file.name || '').toLowerCase();
+        return file.type === 'application/pdf' || name.endsWith('.pdf');
+    }
 
     function sanitizeFilename(name) {
         if (!name) return null;
@@ -307,7 +336,65 @@ function PdfSplitter() {
     }
 
     function clearCombineDropFiles() {
+        thumbnailUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+        thumbnailUrlsRef.current.clear();
         setCombineDropFiles([]);
+    }
+
+    // Removes a single file from the selected list (by its current position)
+    // and revokes its thumbnail URL, if it had one, to avoid leaking it.
+    function removeCombineFileAt(index) {
+        setCombineDropFiles((current) => {
+            const removed = current[index];
+            if (removed && thumbnailUrlsRef.current.has(removed)) {
+                URL.revokeObjectURL(thumbnailUrlsRef.current.get(removed));
+                thumbnailUrlsRef.current.delete(removed);
+            }
+            return current.filter((_, i) => i !== index);
+        });
+    }
+
+    function moveCombineFile(fromIndex, toIndex) {
+        setCombineDropFiles((current) => {
+            if (toIndex < 0 || toIndex >= current.length || fromIndex === toIndex) return current;
+            const updated = [...current];
+            const [moved] = updated.splice(fromIndex, 1);
+            updated.splice(toIndex, 0, moved);
+            return updated;
+        });
+    }
+
+    function handleFileCardDragStart(index) {
+        return (event) => {
+            setDraggedFileIndex(index);
+            event.dataTransfer.effectAllowed = 'move';
+            // Firefox requires data to be set for the drag to start.
+            event.dataTransfer.setData('text/plain', String(index));
+        };
+    }
+
+    function handleFileCardDragOver(index) {
+        return (event) => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            if (dragOverFileIndex !== index) setDragOverFileIndex(index);
+        };
+    }
+
+    function handleFileCardDrop(index) {
+        return (event) => {
+            event.preventDefault();
+            if (draggedFileIndex !== null) {
+                moveCombineFile(draggedFileIndex, index);
+            }
+            setDraggedFileIndex(null);
+            setDragOverFileIndex(null);
+        };
+    }
+
+    function handleFileCardDragEnd() {
+        setDraggedFileIndex(null);
+        setDragOverFileIndex(null);
     }
 
     async function combinePdfs() {
@@ -627,9 +714,8 @@ function PdfSplitter() {
                         </div>
 
                         <div style={{
-                            flex: '0 0 320px',
-                            minWidth: '220px',
-                            height: '280px',
+                            flex: '1 1 360px',
+                            minWidth: '280px',
                             display: 'flex',
                             flexDirection: 'column',
                             border: '1px solid #ccc',
@@ -638,30 +724,155 @@ function PdfSplitter() {
                             overflow: 'hidden'
                         }}>
                             <div style={{
-                                flex: '1 1 auto',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'baseline',
+                                padding: '12px 12px 0'
+                            }}>
+                                <strong>Selected files</strong>
+                                {combineDropFiles.length > 0 && (
+                                    <span style={{ fontSize: '12px', color: '#666' }}>
+                                        Drag to reorder — files combine in this order
+                                    </span>
+                                )}
+                            </div>
+
+                            <div style={{
+                                maxHeight: '360px',
                                 overflowY: 'auto',
                                 padding: '12px'
                             }}>
-                                <strong>Selected files</strong>
                                 {combineDropFiles.length > 0 ? (
-                                    <ul style={{ paddingLeft: '20px', marginTop: '8px' }}>
-                                        {combineDropFiles.map((file, index) => (
-                                            <li key={index}>{file.name}</li>
-                                        ))}
-                                    </ul>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {combineDropFiles.map((file, index) => {
+                                            const thumbnailUrl = getThumbnailUrl(file);
+                                            const isBeingDragged = draggedFileIndex === index;
+                                            const isDropTarget = dragOverFileIndex === index && draggedFileIndex !== null && draggedFileIndex !== index;
+
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    draggable
+                                                    onDragStart={handleFileCardDragStart(index)}
+                                                    onDragOver={handleFileCardDragOver(index)}
+                                                    onDrop={handleFileCardDrop(index)}
+                                                    onDragEnd={handleFileCardDragEnd}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '10px',
+                                                        padding: '8px',
+                                                        border: isDropTarget ? '2px dashed #2563eb' : '1px solid #e5e5e5',
+                                                        borderRadius: '6px',
+                                                        background: isBeingDragged ? '#f0f4ff' : '#fff',
+                                                        opacity: isBeingDragged ? 0.5 : 1,
+                                                        cursor: 'grab'
+                                                    }}
+                                                >
+                                                    <span
+                                                        title="Drag to reorder"
+                                                        style={{ color: '#999', cursor: 'grab', fontSize: '16px', lineHeight: 1 }}
+                                                    >
+                                                        ⠿
+                                                    </span>
+
+                                                    <span style={{
+                                                        flex: '0 0 auto',
+                                                        width: '48px',
+                                                        height: '48px',
+                                                        borderRadius: '4px',
+                                                        overflow: 'hidden',
+                                                        background: '#f2f2f2',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        border: '1px solid #eee'
+                                                    }}>
+                                                        {thumbnailUrl ? (
+                                                            <img
+                                                                src={thumbnailUrl}
+                                                                alt={file.name}
+                                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                            />
+                                                        ) : (
+                                                            <span style={{ fontSize: '10px', fontWeight: 700, color: isPdfFile(file) ? '#b91c1c' : '#888' }}>
+                                                                {isPdfFile(file) ? 'PDF' : '?'}
+                                                            </span>
+                                                        )}
+                                                    </span>
+
+                                                    <span style={{
+                                                        flex: '1 1 auto',
+                                                        minWidth: 0,
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        fontSize: '13px'
+                                                    }} title={file.name}>
+                                                        {index + 1}. {file.name}
+                                                    </span>
+
+                                                    <span style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => moveCombineFile(index, index - 1)}
+                                                            disabled={index === 0}
+                                                            title="Move up"
+                                                            style={{ width: '22px', height: '18px', padding: 0, fontSize: '11px', lineHeight: 1, cursor: index === 0 ? 'default' : 'pointer' }}
+                                                        >
+                                                            ▲
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => moveCombineFile(index, index + 1)}
+                                                            disabled={index === combineDropFiles.length - 1}
+                                                            title="Move down"
+                                                            style={{ width: '22px', height: '18px', padding: 0, fontSize: '11px', lineHeight: 1, cursor: index === combineDropFiles.length - 1 ? 'default' : 'pointer' }}
+                                                        >
+                                                            ▼
+                                                        </button>
+                                                    </span>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeCombineFileAt(index)}
+                                                        title="Remove file"
+                                                        aria-label={`Remove ${file.name}`}
+                                                        style={{
+                                                            flex: '0 0 auto',
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            borderRadius: '50%',
+                                                            border: '1px solid #ddd',
+                                                            background: '#fff',
+                                                            color: '#c0392b',
+                                                            cursor: 'pointer',
+                                                            fontSize: '14px',
+                                                            lineHeight: 1
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 ) : (
-                                    <p style={{ marginTop: '8px', color: '#666' }}>No files added yet.</p>
+                                    <p style={{ marginTop: '0', color: '#666' }}>No files added yet.</p>
                                 )}
                             </div>
-                            <div style={{ padding: '12px', borderTop: '1px solid #eee', background: '#fafafa' }}>
-                                <button
-                                    type="button"
-                                    onClick={clearCombineDropFiles}
-                                    style={{ width: '100%' }}
-                                >
-                                    Clear files
-                                </button>
-                            </div>
+
+                            {combineDropFiles.length > 0 && (
+                                <div style={{ padding: '12px', borderTop: '1px solid #eee', background: '#fafafa' }}>
+                                    <button
+                                        type="button"
+                                        onClick={clearCombineDropFiles}
+                                        style={{ width: '100%' }}
+                                    >
+                                        Clear files
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
 
