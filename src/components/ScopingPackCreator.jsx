@@ -420,7 +420,7 @@ export default function ScopingPackCreator() {
               </div>
             </div>
             <div style={styles.control}>
-              <label style={styles.label}>Custom scope text (fills the [custom text] section):</label>
+              <label style={styles.label}>Custom scope text:</label>
               <textarea style={styles.textarea} rows={4} value={fields.customScope} onChange={updateField("customScope")} />
             </div>
             <div style={styles.row}>
@@ -439,11 +439,7 @@ export default function ScopingPackCreator() {
 
         <div style={styles.middlePanel}>
           <fieldset style={styles.fieldset}>
-            <legend style={styles.legend}>Repeated page — one per Pole ID</legend>
-            <div style={styles.hint}>
-              Fetched automatically from the repo based on the structure type above.
-              It gets appended once per ID listed below, with the fields stamped in.
-            </div>
+            <legend style={styles.legend}>Pole/Pillar Forms</legend>
             <div style={styles.control}>
               <div style={styles.fileStatus}>{templatesStatus}</div>
             </div>
@@ -458,15 +454,15 @@ export default function ScopingPackCreator() {
               </div>
             </div>
             <div style={styles.control}>
-              <label style={styles.label}>Project Address (same on every repeated page)</label>
+              <label style={styles.label}>Project Address</label>
               <input type="text" style={styles.inputText} value={fields.repeatAddress} onChange={updateField("repeatAddress")} />
             </div>
             <div style={styles.control}>
-              <label style={styles.label}>Designer (same on every repeated page)</label>
+              <label style={styles.label}>Designer</label>
               <input type="text" style={styles.inputText} value={fields.repeatDesigner} onChange={updateField("repeatDesigner")} />
             </div>
             <div style={styles.control}>
-              <label style={styles.label}>Pole/Pillar IDs (one per line — one repeated page is created per line)</label>
+              <label style={styles.label}>Pole/Pillar IDs (one repeated page is created per line)</label>
               <textarea
                 style={styles.textarea}
                 rows={5}
@@ -478,7 +474,7 @@ export default function ScopingPackCreator() {
           </fieldset>
         </div>
 
-        <div style={styles.middlePanel}>
+        {/* <div style={styles.middlePanel}>
           <fieldset style={styles.fieldset} disabled={structureType === "pillar"}>
             <legend style={styles.legend}>Closing page</legend>
             {structureType === "pillar" ? (
@@ -498,7 +494,7 @@ export default function ScopingPackCreator() {
               </>
             )}
           </fieldset>
-        </div>
+        </div> */}
 
         <div style={styles.rightPanel}>
           <h3 style={{ marginTop: 0 }}>Preview</h3>
