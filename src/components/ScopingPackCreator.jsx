@@ -27,11 +27,19 @@ async function fetchRepoPdf(relativePath) {
 }
 
 // Paths are relative to the deployed site (i.e. to index.html).
-// Put these two files in your repo, e.g. in a top-level "assets" folder,
-// and update the paths below to match.
-const POLE_FORM = "assets/pole-form.pdf";
-const CLOSING_PAGE_URL = "assets/closing-page.pdf";
-
+// Put these files in your repo, e.g. in a top-level "assets" folder,
+// and update the paths below to match. A null "closing" means that
+// structure type has no closing page and none gets appended.
+const TEMPLATE_URLS = {
+  pole: {
+    repeat: "assets/pole-form.pdf",
+    closing: "assets/closing-page.pdf",
+  },
+  pillar: {
+    repeat: "assets/pillar-form.pdf",
+    closing: null,
+  },
+};
 
 // Hard-coded box positions (in points, from the top-left of the page).
 // Edit these directly to reposition the boxes — they are no longer exposed as inputs.
@@ -59,6 +67,7 @@ const FIELD_DEFAULTS = {
 
 export default function ScopingPackCreator() {
   const [fields, setFields] = useState(FIELD_DEFAULTS);
+  const [structureType, setStructureType] = useState("pole");
   const [uploadStatus, setUploadStatus] = useState("No file loaded.");
   const [templatesStatus, setTemplatesStatus] = useState("Loading repeated-page and closing-page templates...");
   const [status, setStatus] = useState("");
@@ -91,20 +100,28 @@ export default function ScopingPackCreator() {
     return () => { cancelled = true; };
   }, []);
 
-  // Fetch the repeated-page and closing-page templates from the repo once on mount,
-  // instead of requiring them to be uploaded each time.
+  // Fetch the repeated-page (and, where applicable, closing-page) templates
+  // from the repo, instead of requiring them to be uploaded each time.
+  // Re-runs whenever the pole/pillar selection changes.
   useEffect(() => {
     let cancelled = false;
+    setTemplatesStatus(`Loading ${structureType} templates...`);
     (async () => {
       try {
+        const urls = TEMPLATE_URLS[structureType];
         const [repeatBuf, closingBuf] = await Promise.all([
-          fetchRepoPdf(POLE_FORM),
-          fetchRepoPdf(CLOSING_PAGE_URL),
+          fetchRepoPdf(urls.repeat),
+          urls.closing ? fetchRepoPdf(urls.closing) : Promise.resolve(null),
         ]);
         if (cancelled) return;
         repeatBytesRef.current = repeatBuf;
         closingBytesRef.current = closingBuf;
-        setTemplatesStatus("Repeated-page and closing-page templates loaded from repo.");
+        const label = structureType === "pole" ? "Pole" : "Pillar";
+        setTemplatesStatus(
+          urls.closing
+            ? `${label} templates loaded from repo.`
+            : `${label} repeated-page template loaded from repo. (No closing page for this type.)`
+        );
         scheduleRender();
       } catch (err) {
         if (cancelled) return;
@@ -113,7 +130,7 @@ export default function ScopingPackCreator() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [structureType]);
 
   const updateField = (key) => (e) => {
     setFields((prev) => ({ ...prev, [key]: e.target.value }));
@@ -354,12 +371,36 @@ export default function ScopingPackCreator() {
     rightPanel: { flex: "1.4 1 550px", minWidth: 400, position: "sticky", top: 20 },
     previewWrap: { border: "1px solid #ddd", padding: 10, background: "#fafafa", overflow: "auto", maxHeight: "95vh" },
     previewControls: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 },
+    structureToggle: { display: "flex", gap: 20, marginBottom: 20, alignItems: "center" },
   };
 
   return (
     <div style={styles.body}>
       <div>
         <h2>Scoping Pack Creator</h2>
+      </div>
+      <div style={styles.structureToggle}>
+        <label style={{ ...styles.label, marginBottom: 0 }}>Structure type:</label>
+        <label style={{ fontSize: 14 }}>
+          <input
+            type="radio"
+            name="structureType"
+            value="pole"
+            checked={structureType === "pole"}
+            onChange={() => setStructureType("pole")}
+          />{" "}
+          Pole
+        </label>
+        <label style={{ fontSize: 14 }}>
+          <input
+            type="radio"
+            name="structureType"
+            value="pillar"
+            checked={structureType === "pillar"}
+            onChange={() => setStructureType("pillar")}
+          />{" "}
+          Pillar
+        </label>
       </div>
       {!libsReady && (
         <div style={styles.statusText}>Loading PDF libraries...</div>
@@ -400,8 +441,8 @@ export default function ScopingPackCreator() {
           <fieldset style={styles.fieldset}>
             <legend style={styles.legend}>Repeated page — one per Pole ID</legend>
             <div style={styles.hint}>
-              Fetched automatically from the repo ({POLE_FORM}).
-              It gets appended once per Pole ID listed below, with the fields stamped in.
+              Fetched automatically from the repo based on the structure type above.
+              It gets appended once per ID listed below, with the fields stamped in.
             </div>
             <div style={styles.control}>
               <div style={styles.fileStatus}>{templatesStatus}</div>
@@ -425,7 +466,7 @@ export default function ScopingPackCreator() {
               <input type="text" style={styles.inputText} value={fields.repeatDesigner} onChange={updateField("repeatDesigner")} />
             </div>
             <div style={styles.control}>
-              <label style={styles.label}>Pole IDs (one per line — one repeated page is created per line)</label>
+              <label style={styles.label}>Pole/Pillar IDs (one per line — one repeated page is created per line)</label>
               <textarea
                 style={styles.textarea}
                 rows={5}
@@ -438,18 +479,24 @@ export default function ScopingPackCreator() {
         </div>
 
         <div style={styles.middlePanel}>
-          <fieldset style={styles.fieldset}>
+          <fieldset style={styles.fieldset} disabled={structureType === "pillar"}>
             <legend style={styles.legend}>Closing page</legend>
-            <div style={styles.hint}>Fetched automatically from the repo ({CLOSING_PAGE_URL}), appended once at the very end of the pack.</div>
-            <div style={styles.control}>
-              <div style={styles.fileStatus}>{templatesStatus}</div>
-            </div>
-            <div style={styles.row}>
-              <div style={styles.rowItem}>
-                <label style={styles.label}>Page number in this file</label>
-                <input type="number" style={styles.inputNumber} min={1} value={fields.closingPageNum} onChange={updateField("closingPageNum")} />
-              </div>
-            </div>
+            {structureType === "pillar" ? (
+              <div style={styles.hint}>Not used for Pillar — no closing page is appended.</div>
+            ) : (
+              <>
+                <div style={styles.hint}>Fetched automatically from the repo based on the structure type above, appended once at the very end of the pack.</div>
+                <div style={styles.control}>
+                  <div style={styles.fileStatus}>{templatesStatus}</div>
+                </div>
+                <div style={styles.row}>
+                  <div style={styles.rowItem}>
+                    <label style={styles.label}>Page number in this file</label>
+                    <input type="number" style={styles.inputNumber} min={1} value={fields.closingPageNum} onChange={updateField("closingPageNum")} />
+                  </div>
+                </div>
+              </>
+            )}
           </fieldset>
         </div>
 
