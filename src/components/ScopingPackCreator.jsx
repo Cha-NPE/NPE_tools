@@ -450,9 +450,6 @@ export default function ScopingPackCreator() {
         <div style={styles.middlePanel}>
           <fieldset style={styles.fieldset}>
             <legend style={styles.legend}>Pole/Pillar Forms</legend>
-            <div style={styles.control}>
-              <div style={styles.fileStatus}>{templatesStatus}</div>
-            </div>
             <div style={styles.row}>
               <div style={styles.rowItem}>
                 <label style={styles.label}>Page number in this file</label>
