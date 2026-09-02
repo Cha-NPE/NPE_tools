@@ -42,12 +42,22 @@ const TEMPLATE_URLS = {
 };
 
 // Hard-coded box positions (in points, from the top-left of the page).
-// Edit these directly to reposition the boxes — they are no longer exposed as inputs.
+// "front" applies to the front page regardless of structure type.
+// "pole" / "pillar" hold their own address/ID/designer positions since
+// the two form layouts differ. Edit these directly to reposition boxes —
+// they are no longer exposed as inputs.
 const POSITIONS = {
   front: { x: 25, y: 490, w: 540, h: 90 },
-  address: { x: 130, y: 110, w: 200, h: 11 },
-  poleId: { x: 130, y: 125, w: 200, h: 11 },
-  designer: { x: 130, y: 155, w: 200, h: 11 },
+  pole: {
+    address: { x: 130, y: 110, w: 200, h: 11 },
+    poleId: { x: 130, y: 125, w: 200, h: 11 },
+    designer: { x: 130, y: 155, w: 200, h: 11 },
+  },
+  pillar: {
+    address: { x: 135, y: 115, w: 200, h: 11 },
+    poleId: { x: 135, y: 135, w: 200, h: 11 },
+    designer: { x: 135, y: 178, w: 200, h: 11 },
+  },
 };
 
 const FIELD_DEFAULTS = {
@@ -234,11 +244,11 @@ export default function ScopingPackCreator() {
       cursorY -= lineHeight;
     }
 
-    // ---- 2. Repeated page, once per Pole ID ----
+    // ---- 2. Repeated page, once per Pole/Pillar ID ----
     const poleIds = fields.poleIds.split("\n").map((s) => s.trim()).filter((s) => s.length > 0);
     if (poleIds.length > 0) {
       if (!repeatBytesRef.current) {
-        throw new Error("Pole IDs were entered but no repeated-page PDF has been uploaded.");
+        throw new Error("Pole/Pillar IDs were entered but no repeated-page template has loaded yet.");
       }
       const repeatDoc = await PDFDocument.load(repeatBytesRef.current);
       const repeatTemplateIndex = Math.max(0, parseInt(fields.repeatPageNum, 10) - 1);
@@ -250,6 +260,7 @@ export default function ScopingPackCreator() {
       const templateFontSize = parseFloat(fields.repeatFontSize) || 10;
       const address = fields.repeatAddress;
       const designer = fields.repeatDesigner;
+      const pos = POSITIONS[structureType];
 
       for (const poleId of poleIds) {
         const [copiedPage] = await pdfDoc.copyPages(repeatDoc, [repeatTemplateIndex]);
@@ -257,15 +268,15 @@ export default function ScopingPackCreator() {
         const { height: repeatPageHeight } = copiedPage.getSize();
 
         drawFieldText(copiedPage, repeatPageHeight, address, fontRegular, templateFontSize,
-          POSITIONS.address.x, POSITIONS.address.y, POSITIONS.address.w, POSITIONS.address.h, PDFLib);
+          pos.address.x, pos.address.y, pos.address.w, pos.address.h, PDFLib);
         drawFieldText(copiedPage, repeatPageHeight, poleId, fontRegular, templateFontSize,
-          POSITIONS.poleId.x, POSITIONS.poleId.y, POSITIONS.poleId.w, POSITIONS.poleId.h, PDFLib);
+          pos.poleId.x, pos.poleId.y, pos.poleId.w, pos.poleId.h, PDFLib);
         drawFieldText(copiedPage, repeatPageHeight, designer, fontRegular, templateFontSize,
-          POSITIONS.designer.x, POSITIONS.designer.y, POSITIONS.designer.w, POSITIONS.designer.h, PDFLib);
+          pos.designer.x, pos.designer.y, pos.designer.w, pos.designer.h, PDFLib);
       }
     }
 
-    // ---- 3. Closing page, appended once at the very end ----
+    // ---- 3. Closing page, appended once at the very end (pole only) ----
     if (closingBytesRef.current) {
       const closingDoc = await PDFDocument.load(closingBytesRef.current);
       const closingIndex = Math.max(0, parseInt(fields.closingPageNum, 10) - 1);
@@ -278,7 +289,7 @@ export default function ScopingPackCreator() {
     }
 
     return pdfDoc.save();
-  }, [fields]);
+  }, [fields, structureType]);
 
   const renderPreview = useCallback(async () => {
     if (!frontBytesRef.current || !libsReady) return;
@@ -314,12 +325,12 @@ export default function ScopingPackCreator() {
     renderTimerRef.current = setTimeout(renderPreview, 300);
   }, [renderPreview]);
 
-  // Re-render whenever fields or preview page change (debounced).
+  // Re-render whenever fields, structure type, or preview page change (debounced).
   useEffect(() => {
     scheduleRender();
     return () => clearTimeout(renderTimerRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields, previewPage, libsReady]);
+  }, [fields, structureType, previewPage, libsReady]);
 
   const handleFrontUpload = async (e) => {
     const file = e.target.files[0];
@@ -366,8 +377,8 @@ export default function ScopingPackCreator() {
     hint: { fontSize: 12, color: "#777", marginTop: -6, marginBottom: 10 },
     fileStatus: { fontSize: 12, color: "#777", marginTop: 4 },
     layout: { display: "flex", gap: 30, alignItems: "flex-start", flexWrap: "wrap" },
-    leftPanel: { flex: "1 1 420px", minWidth: 320 },
-    middlePanel: { flex: "1 1 410px", minWidth: 320 },
+    leftPanel: { flex: "1 1 420px", minWidth: 200 },
+    middlePanel: { flex: "1 1 410px", minWidth: 200 },
     rightPanel: { flex: "1.4 1 550px", minWidth: 400, position: "sticky", top: 20 },
     previewWrap: { border: "1px solid #ddd", padding: 10, background: "#fafafa", overflow: "auto", maxHeight: "95vh" },
     previewControls: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 },
@@ -380,7 +391,7 @@ export default function ScopingPackCreator() {
         <h2>Scoping Pack Creator</h2>
       </div>
       <div style={styles.structureToggle}>
-        <label style={{ ...styles.label, marginBottom: 0 }}>Structure type:</label>
+        <label style={{ ...styles.label, marginBottom: 0 }}>Scoping Type:</label>
         <label style={{ fontSize: 14 }}>
           <input
             type="radio"
@@ -474,30 +485,17 @@ export default function ScopingPackCreator() {
           </fieldset>
         </div>
 
-        {/* <div style={styles.middlePanel}>
-          <fieldset style={styles.fieldset} disabled={structureType === "pillar"}>
-            <legend style={styles.legend}>Closing page</legend>
-            {structureType === "pillar" ? (
-              <div style={styles.hint}>Not used for Pillar — no closing page is appended.</div>
-            ) : (
-              <>
-                <div style={styles.hint}>Fetched automatically from the repo based on the structure type above, appended once at the very end of the pack.</div>
-                <div style={styles.control}>
-                  <div style={styles.fileStatus}>{templatesStatus}</div>
-                </div>
-                <div style={styles.row}>
-                  <div style={styles.rowItem}>
-                    <label style={styles.label}>Page number in this file</label>
-                    <input type="number" style={styles.inputNumber} min={1} value={fields.closingPageNum} onChange={updateField("closingPageNum")} />
-                  </div>
-                </div>
-              </>
-            )}
-          </fieldset>
-        </div> */}
-
         <div style={styles.rightPanel}>
           <h3 style={{ marginTop: 0 }}>Preview</h3>
+            <div style={styles.control}>
+                <button
+                    onClick={handleDownload}
+                    disabled={!downloadEnabled}
+                    style={downloadEnabled ? styles.button : { ...styles.button, ...styles.buttonDisabled }}
+                    >
+                Download Modified PDF
+                </button>
+            </div>
           <div style={styles.previewControls}>
             <label style={{ margin: 0 }}>Preview page</label>
             <input
@@ -511,15 +509,6 @@ export default function ScopingPackCreator() {
           </div>
           <div style={styles.previewWrap}>
             <canvas ref={canvasRef} style={styles.canvas} />
-          </div>
-          <div style={styles.control}>
-            <button
-              onClick={handleDownload}
-              disabled={!downloadEnabled}
-              style={downloadEnabled ? styles.button : { ...styles.button, ...styles.buttonDisabled }}
-            >
-              Download Modified PDF
-            </button>
           </div>
         </div>
       </div>
