@@ -445,7 +445,6 @@ export default function ScopingPackCreator() {
               </div>
             </div>
           </fieldset>
-          <div style={styles.statusText}>{status}</div>
         </div>
 
         <div style={styles.middlePanel}>
@@ -496,6 +495,7 @@ export default function ScopingPackCreator() {
                 Download Modified PDF
                 </button>
             </div>
+          <div style={styles.statusText}>{status}</div>
           <div style={styles.previewControls}>
             <label style={{ margin: 0 }}>Preview page</label>
             <input
