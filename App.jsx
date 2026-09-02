@@ -59,7 +59,7 @@ function App() {
                     </button>  
 
                     <button onClick={() => setSelectedTool("scoping")}>
-                        {sidebarOpen ? "Scoping Pack Creator" : "Scoping"}
+                        {sidebarOpen ? "Scoping Pack" : "Scoping"}
                     </button>  
                     </>
                 )}
