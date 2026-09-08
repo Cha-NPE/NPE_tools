@@ -49,7 +49,7 @@ function DGFormatter() {
 
     const [input, setInput] = useState("");
 
-    const [output, setOutput] = useState({request: "", icp: "", address: "", region: ""});
+    const [output, setOutput] = useState({request: "", icp: "", address: "", region: "", original: ""});
 
     function findRegion(address) {
         const lowerAddress = address.toLowerCase();
@@ -75,7 +75,7 @@ function DGFormatter() {
         let address = parts[3].replace(/\s+,/g, ",").trim();
         let region = findRegion(address);
 
-        setOutput({request, icp, address, region});
+        setOutput({request, icp, address, region, text});
         setInput("");
     }
 
@@ -90,10 +90,22 @@ function DGFormatter() {
         const formattedRegion = `${regionCode} - Purchase Order 4100000461`;
         
         const outputHtml =
-            `${request}`;
+            `<div>DG Labelling request - ${output.request} - ICP ${output.icp}</div>
+            <div><strong>${output.address}</strong></div>
+            <div>${formattedRegion}</div>
+            <div>${poNumber}</div>
+            <div>4100000461</div>
+            <div>${output.request} - DG Label ${output.request} ${output.icp}</div>
+            <div>${output.original}</div>`;
 
         const outputText =
-            `${request}`;
+            `DG Labelling request - ${output.request} - ICP ${output.icp}
+            ${output.address}
+            ${formattedRegion}
+            ${poNumber}
+            4100000461
+            ${output.request} - DG Label ${output.request} ${output.icp}
+            ${output.original}`;
 
         await navigator.clipboard.write([
             new ClipboardItem({
@@ -136,7 +148,13 @@ function DGFormatter() {
             <div className="output">
                 {output.request && (
                     <>
-                        <div>{request}</div>
+                        <div>DG Labelling request - {output.request} - ICP {output.icp}</div>
+                        <div><strong>{output.address}</strong></div>
+                        <div>{output.region.split(" \n")[0]} - Purchase Order 4100000461</div>
+                        <div>{output.region.split(" \n")[1]}</div>
+                        <div>4100000461</div>
+                        <div>{output.request} - DG Label {output.request} {output.icp}</div>
+                        <div>{output.original}</div>
                     </>
                 )}
             </div>
