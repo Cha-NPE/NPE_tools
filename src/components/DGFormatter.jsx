@@ -90,20 +90,10 @@ function DGFormatter() {
         const formattedRegion = `${regionCode} - Purchase Order 4100000461`;
         
         const outputHtml =
-            `<div>DG Labelling request - ${output.request} - ICP ${output.icp}</div>
-            <div><strong>${output.address}</strong></div>
-            <div>${formattedRegion}</div>
-            <div>${poNumber}</div>
-            <div>4100000461</div>
-            <div>${output.request} - DG Label ${output.request} ${output.icp}</div>`;
+            `${output}`;
 
         const outputText =
-            `DG Labelling request - ${output.request} - ICP ${output.icp}
-            ${output.address}
-            ${formattedRegion}
-            ${poNumber}
-            4100000461
-            ${output.request} - DG Label ${output.request} ${output.icp}`;
+            `${output}`;
 
         await navigator.clipboard.write([
             new ClipboardItem({
@@ -146,11 +136,7 @@ function DGFormatter() {
             <div className="output">
                 {output.request && (
                     <>
-                        <div>DG Labelling request - {output.request} - ICP {output.icp}</div>
-                        <div><strong>{output.address}</strong></div>
-                        <div>{output.region.split(" \n")[0]} - Purchase Order 4100000461</div>
-                        <div>{output.region.split(" \n")[1]}</div>
-                        <div>{output.request} - DG Label {output.request} {output.icp}</div>
+                        <div>{output}</div>
                     </>
                 )}
             </div>
