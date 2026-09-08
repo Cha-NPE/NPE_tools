@@ -49,7 +49,7 @@ function DGFormatter() {
 
     const [input, setInput] = useState("");
 
-    const [output, setOutput] = useState({request: "", icp: "", address: "", region: "", original: ""});
+    const [output, setOutput] = useState({request: "", icp: "", address: "", region: "", text: ""});
 
     function findRegion(address) {
         const lowerAddress = address.toLowerCase();
@@ -96,7 +96,7 @@ function DGFormatter() {
             <div>${poNumber}</div>
             <div>4100000461</div>
             <div>${output.request} - DG Label ${output.request} ${output.icp}</div>
-            <div>${output.original}</div>`;
+            <div>${output.text}</div>`;
 
         const outputText =
             `DG Labelling request - ${output.request} - ICP ${output.icp}
@@ -105,7 +105,7 @@ function DGFormatter() {
             ${poNumber}
             4100000461
             ${output.request} - DG Label ${output.request} ${output.icp}
-            ${output.original}`;
+            ${output.text}`;
 
         await navigator.clipboard.write([
             new ClipboardItem({
@@ -154,7 +154,7 @@ function DGFormatter() {
                         <div>{output.region.split(" \n")[1]}</div>
                         <div>4100000461</div>
                         <div>{output.request} - DG Label {output.request} {output.icp}</div>
-                        <div>{output.original}</div>
+                        <div>{output.text}</div>
                     </>
                 )}
             </div>
