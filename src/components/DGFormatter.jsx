@@ -90,10 +90,10 @@ function DGFormatter() {
         const formattedRegion = `${regionCode} - Purchase Order 4100000461`;
         
         const outputHtml =
-            `${output}`;
+            `${request}`;
 
         const outputText =
-            `${output}`;
+            `${request}`;
 
         await navigator.clipboard.write([
             new ClipboardItem({
@@ -136,7 +136,7 @@ function DGFormatter() {
             <div className="output">
                 {output.request && (
                     <>
-                        <div>{output}</div>
+                        <div>{request}</div>
                     </>
                 )}
             </div>
