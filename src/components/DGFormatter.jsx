@@ -31,6 +31,8 @@ function DGFormatter() {
         "rongotea":"WMA \n50551888",
         "longburn":"WMA \n50551888",
         "colyton":"WMA \n50551888",
+        "apiti":"WMA \n50551888",
+        "kaitoke":"WMA \n50551888",
 
         // Whanganui
         "whanganui":"WWG \n50551887",
