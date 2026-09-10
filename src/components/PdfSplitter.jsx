@@ -69,6 +69,7 @@ function PdfSplitter() {
     const [fixImageRotation, setFixImageRotation] = useState(true);
     const [draggedFileIndex, setDraggedFileIndex] = useState(null);
     const [dragOverFileIndex, setDragOverFileIndex] = useState(null);
+    const [combineFilename, setCombineFilename] = useState("Photos");
 
     // Object URLs generated for image thumbnails, keyed by File object so the
     // same file keeps the same thumbnail across re-renders/reorders. Revoked
@@ -540,7 +541,7 @@ function PdfSplitter() {
         }
 
         const outputBytes = await mergedPdf.save();
-        const filename = sanitizeFilename("Photos") || "Photos";
+        const filename = sanitizeFilename(combineFilename) || "Photos";
 
         try {
             if (folderHandle) {
@@ -694,23 +695,44 @@ function PdfSplitter() {
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', width: '100%', minWidth: '220px' }}>
-                            <button
-                                type="button"
-                                onClick={combinePdfs}
-                                style={{
-                                    padding: '14px 26px',
-                                    fontSize: '16px',
-                                    borderRadius: '10px',
-                                    minWidth: '220px',
-                                    background: 'linear-gradient(90deg,#2563eb,#4f46e5)',
-                                    color: '#fff',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    boxShadow: '0 8px 18px rgba(37,99,235,0.12)'
-                                }}
-                            >
-                                Combine Files
-                            </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '220px' }}>
+                                <label style={{ fontSize: '13px', color: '#444' }}>
+                                    Output filename
+                                    <input
+                                        type="text"
+                                        value={combineFilename}
+                                        onChange={(event) => setCombineFilename(event.target.value)}
+                                        placeholder="Photos"
+                                        style={{
+                                            display: 'block',
+                                            width: '100%',
+                                            marginTop: '4px',
+                                            padding: '8px',
+                                            borderRadius: '6px',
+                                            border: '1px solid #ccc',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                </label>
+
+                                <button
+                                    type="button"
+                                    onClick={combinePdfs}
+                                    style={{
+                                        padding: '14px 26px',
+                                        fontSize: '16px',
+                                        borderRadius: '10px',
+                                        minWidth: '220px',
+                                        background: 'linear-gradient(90deg,#2563eb,#4f46e5)',
+                                        color: '#fff',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        boxShadow: '0 8px 18px rgba(37,99,235,0.12)'
+                                    }}
+                                >
+                                    Combine Files
+                                </button>
+                            </div>
                         </div>
 
                         <div style={{
