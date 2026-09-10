@@ -30,6 +30,8 @@ Error generating stack: `+e.message+`
 50551888`,rongotea:`WMA 
 50551888`,longburn:`WMA 
 50551888`,colyton:`WMA 
+50551888`,apiti:`WMA 
+50551888`,kaitoke:`WMA 
 50551888`,whanganui:`WWG 
 50551887`,wanganui:`WWG 
 50551887`,marton:`WWG 
