@@ -540,7 +540,7 @@ function PdfSplitter() {
         }
 
         const outputBytes = await mergedPdf.save();
-        const filename = sanitizeFilename("Combined") || "Combined";
+        const filename = sanitizeFilename("Photos") || "Photos";
 
         try {
             if (folderHandle) {
