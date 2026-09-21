@@ -265,7 +265,7 @@ function NRFormatter() {
             </div>
             <div style="text-align:center;">
                 <span style="font-weight:bold; font-size:10pt;">
-                    Contact electrician ${electricianPhone} or Kate/Chisora if any issues
+                    Contact electrician ${electricianPhone} or Chisora if any issues
                 </span>
             </div>
         `}
