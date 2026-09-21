@@ -284,7 +284,7 @@ end`},Xi=function(){return`<`+[...arguments].join(``)+`>`},Zi=function(e){return
             </div>
             <div style="text-align:center;">
                 <span style="font-weight:bold; font-size:10pt;">
-                    Contact electrician ${ee} or Kate/Chisora if any issues
+                    Contact electrician ${ee} or Chisora if any issues
                 </span>
             </div>
         `}
