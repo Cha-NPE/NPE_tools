@@ -16,6 +16,7 @@ Error generating stack: `+e.message+`
 50551886`,dyerville:`WWP 
 50551886`,castlepoint:`WWP 
 50551886`,pahiatua:`WWP 
+50551886`,kahutara:`WWP 
 50551886`,"palmerston north":`WMA 
 50551888`,feilding:`WMA 
 50551888`,ashhurst:`WMA 
