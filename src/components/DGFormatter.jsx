@@ -15,6 +15,7 @@ function DGFormatter() {
         "dyerville":"WWP \n50551886",
         "castlepoint":"WWP \n50551886",
         "pahiatua":"WWP \n50551886",
+        "kahutara":"WWP \n50551886",
 
         // Manawatu
         "palmerston north":"WMA \n50551888",
