@@ -75,6 +75,16 @@ function NRFormatter() {
         return phone;
     }
 
+    function formatAddress(address) {
+        if (!address) { return ""; }
+
+        return address
+            .toLowerCase()
+            .replace(/\s+,/g, ",")                              // remove whitespace directly before commas
+            .replace(/(^|[\s\-\/(])(\p{L})/gu,                  // capitalise first letter of each word
+                (match, before, letter) => before + letter.toUpperCase());
+    }
+
     function getSection(text, sectionHeader, nextHeaders = []){
         const startIndex = text.indexOf(sectionHeader);
 
@@ -116,6 +126,7 @@ function NRFormatter() {
         const permanent = getValue(text, "Permanent/Temporary:", "SITE DETAILS");
 
         const siteAddress = getValue(siteDetailsSection, "Site Address:", ["Legal Description:", "Additional Details"]);
+        const titleAddress = formatAddress(siteAddress);
         const legalDescription = getValue(siteDetailsSection, "Legal Description:", "Additional Details:");
         const additionalDetails = getValue(siteDetailsSection, "Additional Details:", "Meter Number");
 
@@ -173,12 +184,12 @@ function NRFormatter() {
         //Formatted output
         const output =
         `
-        <div>${workOrderNumber} ${subject}-${siteAddress}</div>
-        <div>${getRegionNumber(siteAddress)}</div>
+        <div>${workOrderNumber} ${subject}-${formatAddress}</div>
+        <div>${getRegionNumber(formatAddress)}</div>
 
         <div style="text-align:center;">
             <span style="font-weight:bold; text-decoration: underline; font-size:10pt;">
-                ${workOrderNumber} - ${siteAddress || legalDescription} - ${displayJobClassification}
+                ${workOrderNumber} - ${formatAddress || legalDescription} - ${displayJobClassification}
             </span>
         </div>
         <div><br></div>
@@ -208,7 +219,7 @@ function NRFormatter() {
         ${isDecommission ? `<strong>
         <div>${assetType} ${assetNumber}</div>
         <div>Transformer Site ID ${transformerSite}</div>
-        <div>Site address: ${siteAddress}</div>
+        <div>Site address: ${formatAddress}</div>
         <div>${addLine("Additional Details", additionalDetails)}</div>
         <div>High level job scope: ${jobScope}</div>
         <br>
@@ -216,7 +227,7 @@ function NRFormatter() {
         ` : `
         <div><br></div>
         <div><strong>SITE DETAILS</strong></div>
-        <div>${addLine("Site Address", siteAddress)}</div>
+        <div>${addLine("Site Address", formatAddress)}</div>
         <div>${addLine("Legal Description", legalDescription)}</div>  
         <div>${addLine("Additional Details", additionalDetails)}</div>
         <div><br></div>
@@ -265,7 +276,7 @@ function NRFormatter() {
             </div>
             <div style="text-align:center;">
                 <span style="font-weight:bold; font-size:10pt;">
-                    Contact electrician ${electricianPhone} or Chisora if any issues
+                    Contact electrician ${electricianPhone} or Chisora/Isla if any issues
                 </span>
             </div>
         `}
