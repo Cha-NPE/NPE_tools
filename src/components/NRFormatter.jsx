@@ -184,12 +184,12 @@ function NRFormatter() {
         //Formatted output
         const output =
         `
-        <div>${workOrderNumber} ${subject}-${formatAddress}</div>
-        <div>${getRegionNumber(formatAddress)}</div>
+        <div>${workOrderNumber} ${subject}-${titleAddress}</div>
+        <div>${getRegionNumber(siteAddress)}</div>
 
         <div style="text-align:center;">
             <span style="font-weight:bold; text-decoration: underline; font-size:10pt;">
-                ${workOrderNumber} - ${formatAddress || legalDescription} - ${displayJobClassification}
+                ${workOrderNumber} - ${titleAddress || legalDescription} - ${displayJobClassification}
             </span>
         </div>
         <div><br></div>
@@ -219,7 +219,7 @@ function NRFormatter() {
         ${isDecommission ? `<strong>
         <div>${assetType} ${assetNumber}</div>
         <div>Transformer Site ID ${transformerSite}</div>
-        <div>Site address: ${formatAddress}</div>
+        <div>Site address: ${siteAddress}</div>
         <div>${addLine("Additional Details", additionalDetails)}</div>
         <div>High level job scope: ${jobScope}</div>
         <br>
@@ -227,7 +227,7 @@ function NRFormatter() {
         ` : `
         <div><br></div>
         <div><strong>SITE DETAILS</strong></div>
-        <div>${addLine("Site Address", formatAddress)}</div>
+        <div>${addLine("Site Address", siteAddress)}</div>
         <div>${addLine("Legal Description", legalDescription)}</div>  
         <div>${addLine("Additional Details", additionalDetails)}</div>
         <div><br></div>
