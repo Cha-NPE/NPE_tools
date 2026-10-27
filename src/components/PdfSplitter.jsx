@@ -117,28 +117,14 @@ function PdfSplitter() {
         const appNumberMatch = text.match(/Customer\s*Works\s*Application\s*Number:?\s*(\d+)/i);
         const appNumber = appNumberMatch ? appNumberMatch[1] : null;
 
-        // The address sits between "Contractor:" and "Date Work Completed:" on
-        // the form, but OCR runs the contractor name and address together with
-        // no separator (e.g. "Contractor: NPE-Tech 77 Aranui Road Date Work
-        // Completed:"). The contractor name doesn't contain digits, so the
-        // address is taken to start at the first digit in that span (the house
-        // number) and run to the end of the span.
+        // The address starts at the first digit (the house number) and ends at
+        // the first "|" or the word "Date" that follows it.
         let address = null;
-        const contractorMatch = text.match(/Contractor:?/i);
-        const dateMatch = text.match(/Date\s*Work\s*Completed/i);
-        if (contractorMatch && dateMatch) {
-            const contractorEnd = contractorMatch.index + contractorMatch[0].length;
-            const dateStart = dateMatch.index;
-            if (dateStart > contractorEnd) {
-                const between = text.slice(contractorEnd, dateStart);
-                const digitIdx = between.search(/\d/);
-                if (digitIdx !== -1) {
-                    address = between.slice(digitIdx).replace(/\s+/g, " ").trim();
-                    // Drop stray trailing OCR noise like a lone pipe/quote left
-                    // over from a table border (e.g. "30 Freyberg Street |\"").
-                    address = address.replace(/[|"'`]+$/g, "").trim() || null;
-                }
-            }
+        const addressMatch = text.match(/(\d[\s\S]*?)(?:\||\bDate\b)/i);
+        if (addressMatch) {
+            address = addressMatch[1].replace(/\s+/g, " ").trim();
+            // Drop stray trailing OCR noise (quotes, backticks, etc.)
+            address = address.replace(/["'`]+$/g, "").trim() || null;
         }
 
         return { appNumber, address };
