@@ -65,67 +65,59 @@ function GWFormatter() {
             }
         });
 
+        const tableStyle = `width:100%;
+        border-collapse:collapse;
+        font-family:Arial,sans-serif;
+        font-size:11pt;`;
+
         const footerTable = `
         <br>
 
-        <table border="1"
-        style="width:100%;
-        border-collapse:collapse;
-        font-family:Arial,sans-serif;
-        font-size:11pt;">
-
+        <table border="1" style="${tableStyle}">
             <tr>
-                <td nowrap>
-                    <strong>Stock&nbsp;Cable&nbsp;Used:</strong>
-                </td>
-                <td style="width:100%;"></td>
+                <td><strong>Stock Cable Used:</strong> Ali Size/Meters -&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vintol Size/Meters -</td>
             </tr>
-
-            <tr>
-                <td nowrap>
-                    <strong>Ali&nbsp;Size/Meters:</strong>
-                </td>
-                <td style=width:100%"></td>
-            </tr>
-
-            <tr>
-                <td nowrap>
-                    <strong>Vintol&nbsp;Size/Meters:</strong>
-                </td>
-
-                <td style="width:100%"></td>
-            </tr>
-
         </table>
 
         <br>
 
-        <table border="1"
-        style="width:100%;
-        border-collapse:collapse;
-        font-family:Arial,sans-serif;
-        font-size:11pt;">
-
+        <table border="1" style="${tableStyle}">
             <tr>
-                <td>PLEXUS:</td>
-                <td>C-TTM CONFIRMED/REQ:</td>
+                <td style="width:36%;"><strong>Plexus:</strong></td>
+                <td style="width:31%;">&#9744;<strong>Raukawa:</strong></td>
+                <td style="width:33%;"><strong>DIALB4UDIG: M &#9744; P &#9744;</strong></td>
             </tr>
-
             <tr>
-                <td>SCHEDULED:</td>
-                <td>DIALB4UDIG:</td>
+                <td><strong>Scheduled:</strong></td>
+                <td><strong>JA PO:</strong></td>
+                <td><strong>&#9744;TMP</strong>:</td>
             </tr>
-
             <tr>
-                <td>NAPA:</td>
-                <td>J A RUSSELL:</td>
+                <td><strong>NAPA:</strong> HV &#9744; LV &#9744; LP &#9744; AP &#9744;</td>
+                <td><strong>Spec Order:</strong> RMU <strong>&#9744;</strong> Cru <strong>&#9744;</strong></td>
+                <td>&#9744;<strong>TTM:</strong></td>
             </tr>
-
             <tr>
-                <td>CIVIL:</td>
-                <td>SPEC ORDER:</td>
+                <td><strong>CIVIL:</strong> NPE &#9744; LM &#9744; TD &#9744; FD &#9744;</td>
+                <td>TX <strong>&#9744;</strong> ABS <strong>&#9744;</strong></td>
+                <td><strong>Manned &#9744; Setup</strong> &#9744;</td>
             </tr>
+        </table>
 
+        <br>
+
+        <table border="1" style="${tableStyle}">
+            <tr style="height:170px;">
+                <td style="vertical-align:top;">
+                    <p style="margin:0;">-</p>
+                    <p style="margin:0;">&nbsp;</p>
+                    <p style="margin:0;">-</p>
+                    <p style="margin:0;">&nbsp;</p>
+                    <p style="margin:0;">-</p>
+                    <p style="margin:0;">&nbsp;</p>
+                    <p style="margin:0;">-</p>
+                </td>
+            </tr>
         </table>
         `;
 
