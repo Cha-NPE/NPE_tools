@@ -65,7 +65,7 @@ function GWFormatter() {
             }
         });
 
-        const tableStyle = `width:451.3pt;
+        const tableStyle = `width:453.5pt;
         border-collapse:collapse;
         font-family:Arial,sans-serif;
         font-size:11pt;`;
@@ -124,7 +124,7 @@ function GWFormatter() {
         const finalHtml = `
 
         <table border="0"
-        style="width:451.3pt;
+        style="width:453.5pt;
         border-collapse:collapse;
         font-family:Arial,sans-serif;
         font-size:11pt;">
