@@ -65,7 +65,7 @@ function GWFormatter() {
             }
         });
 
-        const tableStyle = `width:100%;
+        const tableStyle = `width:451.3pt;
         border-collapse:collapse;
         font-family:Arial,sans-serif;
         font-size:11pt;`;
@@ -84,23 +84,23 @@ function GWFormatter() {
         <table border="1" style="${tableStyle}">
             <tr>
                 <td style="width:36%;"><strong>Plexus:</strong></td>
-                <td style="width:31%;">&#9744;<strong>Raukawa:</strong></td>
-                <td style="width:33%;"><strong>DIALB4UDIG: M &#9744; P &#9744;</strong></td>
+                <td style="width:31%;">&#9744; <strong>Raukawa:</strong></td>
+                <td style="width:33%;"><strong>DIALB4UDIG:</strong> M &#9744; P &#9744;</td>
             </tr>
             <tr>
                 <td><strong>Scheduled:</strong></td>
                 <td><strong>JA PO:</strong></td>
-                <td><strong>&#9744;TMP</strong>:</td>
+                <td>&#9744; <strong>TMP:</strong></td>
             </tr>
             <tr>
                 <td><strong>NAPA:</strong> HV &#9744; LV &#9744; LP &#9744; AP &#9744;</td>
-                <td><strong>Spec Order:</strong> RMU <strong>&#9744;</strong> Cru <strong>&#9744;</strong></td>
-                <td>&#9744;<strong>TTM:</strong></td>
+                <td><strong>Spec Order:</strong> RMU &#9744; Cru &#9744;</td>
+                <td>&#9744; <strong>TTM:</strong></td>
             </tr>
             <tr>
                 <td><strong>CIVIL:</strong> NPE &#9744; LM &#9744; TD &#9744; FD &#9744;</td>
-                <td>TX <strong>&#9744;</strong> ABS <strong>&#9744;</strong></td>
-                <td><strong>Manned &#9744; Setup</strong> &#9744;</td>
+                <td>TX &#9744; ABS &#9744;</td>
+                <td>Manned &#9744; Setup &#9744;</td>
             </tr>
         </table>
 
@@ -124,7 +124,7 @@ function GWFormatter() {
         const finalHtml = `
 
         <table border="0"
-        style="width:100%;
+        style="width:451.3pt;
         border-collapse:collapse;
         font-family:Arial,sans-serif;
         font-size:11pt;">
