@@ -46,7 +46,8 @@ function GWFormatter() {
         let wo = "";
         let site = "";
         const detailLabels = ["Powerco's PM:", "WO:", "Site", "Scope of Services:"];
-        const labelColWidthPx = 2000;
+        const tableWidthPt = 467.7; // 16.5cm - full width of the Word template
+        const labelColWidthPt = 99; // 3.5cm label column on the Overview table
 
         rows.forEach(row => {
             const cells = [...row.cells];
@@ -65,7 +66,7 @@ function GWFormatter() {
             }
         });
 
-        const tableStyle = `width:453.5pt;
+        const tableStyle = `width:${tableWidthPt}pt;
         border-collapse:collapse;
         font-family:Arial,sans-serif;
         font-size:11pt;`;
@@ -83,9 +84,9 @@ function GWFormatter() {
 
         <table border="1" style="${tableStyle}">
             <tr>
-                <td style="width:36%;"><strong>Plexus:</strong></td>
-                <td style="width:31%;">&#9744; <strong>Raukawa:</strong></td>
-                <td style="width:33%;"><strong>DIALB4UDIG:</strong> M &#9744; P &#9744;</td>
+                <td style="width:${(tableWidthPt * 0.36).toFixed(1)}pt;"><strong>Plexus:</strong></td>
+                <td style="width:${(tableWidthPt * 0.31).toFixed(1)}pt;">&#9744; <strong>Raukawa:</strong></td>
+                <td style="width:${(tableWidthPt * 0.33).toFixed(1)}pt;"><strong>DIALB4UDIG:</strong> M &#9744; P &#9744;</td>
             </tr>
             <tr>
                 <td><strong>Scheduled:</strong></td>
@@ -94,12 +95,19 @@ function GWFormatter() {
             </tr>
             <tr>
                 <td><strong>NAPA:</strong> HV &#9744; LV &#9744; LP &#9744; AP &#9744;</td>
-                <td><strong>Spec Order:</strong> RMU &#9744; Cru &#9744;</td>
+                <td>
+                    <table border="0" style="width:100%; border-collapse:collapse; font-family:Arial,sans-serif; font-size:11pt;">
+                        <tr>
+                            <td style="padding:0;"><strong>Spec Order:</strong></td>
+                            <td style="padding:0; text-align:right;">RMU &#9744; Cru &#9744;</td>
+                        </tr>
+                    </table>
+                </td>
                 <td>&#9744; <strong>TTM:</strong></td>
             </tr>
             <tr>
                 <td><strong>CIVIL:</strong> NPE &#9744; LM &#9744; TD &#9744; FD &#9744;</td>
-                <td>TX &#9744; ABS &#9744;</td>
+                <td style="text-align:right;">TX &#9744; ABS &#9744;</td>
                 <td>Manned &#9744; Setup &#9744;</td>
             </tr>
         </table>
@@ -124,38 +132,38 @@ function GWFormatter() {
         const finalHtml = `
 
         <table border="0"
-        style="width:453.5pt;
+        style="width:${tableWidthPt}pt;
         border-collapse:collapse;
         font-family:Arial,sans-serif;
         font-size:11pt;">
 
             <tr>
-                <td style="background-color:#c8b7d9; white-space:nowrap; width:${labelColWidthPx}px;"><strong>Overview</strong></td>
-                <td></td>
+                <td style="background-color:#c8b7d9; width:${labelColWidthPt}pt;"><strong>Overview</strong></td>
+                <td style="width:${tableWidthPt - labelColWidthPt}pt;"></td>
             </tr>
 
             <tr>
-                <td style="white-space:nowrap; width:${labelColWidthPx}px;">Powerco's PM:</td>
+                <td style="width:${labelColWidthPt}pt;">Powerco's PM:</td>
                 <td style="color:#000;">${pm}</td>
             </tr>
 
             <tr>
-                <td style="white-space:nowrap; width:${labelColWidthPx}px;">WO:</td>
+                <td style="width:${labelColWidthPt}pt;">WO:</td>
                 <td style="color:#000;">${wo}</td>
             </tr>
 
             <tr>
-                <td style="background-color:#c8b7d9; white-space:nowrap; width:${labelColWidthPx}px;"><strong>Specifications</strong></td>
+                <td style="background-color:#c8b7d9; width:${labelColWidthPt}pt;"><strong>Specifications</strong></td>
                 <td></td>
             </tr>
 
             <tr>
-                <td style="white-space:nowrap; width:${labelColWidthPx}px;">Site</td>
+                <td style="width:${labelColWidthPt}pt;">Site</td>
                 <td style="color:#000;">${site}</td>
             </tr>
 
             <tr>
-                <td style="vertical-align:top; white-space:nowrap; width:${labelColWidthPx}px;">Scope of Services:</td>
+                <td style="vertical-align:top; width:${labelColWidthPt}pt;">Scope of Services:</td>
                 <td style="color:#000;"></td>
             </tr>
 
